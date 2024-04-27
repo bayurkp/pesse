@@ -14,34 +14,28 @@ class PesseColors {
   static const red = Color(0xFFCC0000);
 
   // Grays
-  static const gray50 = Color(0xFFF7FAFC);
-  static const gray100 = Color(0xFFE5EAFE);
-  static const gray200 = Color(0xFFCED4EE);
-  static const gray300 = Color(0xFFADB5C7);
-  static const gray400 = Color(0xFF8899A6);
-  static const gray500 = Color(0xFF687587);
-  static const gray600 = Color(0xFF4B5563);
-  static const gray700 = Color(0xFF374151);
-  static const gray800 = Color(0xFF1B2631);
-  static const gray900 = Color(0xFF171A24);
+  static const Color gray50 = Color(0xFFFAFAFA);
+  static const Color gray100 = Color(0xFFF5F5F5);
+  static const Color gray200 = Color(0xFFEEEEEE);
+  static const Color gray300 = Color(0xFFE0E0E0);
+  static const Color gray400 = Color(0xFFBDBDBD);
+  static const Color gray500 = Color(0xFF9E9E9E);
+  static const Color gray600 = Color(0xFF757575);
+  static const Color gray700 = Color(0xFF616161);
+  static const Color gray800 = Color(0xFF424242);
+  static const Color gray900 = Color(0xFF212121);
 
   // General Theme Colors
   static const primary = polynesianBlue;
-  static const onPrimary = black;
+  static const onPrimary = white;
   static const secondary = mikadoYellow;
   static const onSecondary = black;
   static const error = red;
   static const onError = white;
 
   // Light Theme Colors
-  static const lightBackground = white;
-  static const lightOnBackground = black;
-  static const lightSurface = gray50;
-  static const lightOnSurface = gray900;
-
-  // Dark Theme Colors
-  static const darkBackground = gray900;
-  static const darkOnBackground = white;
-  static const darkSurface = gray800;
-  static const darkOnSurface = white;
+  static const background = white;
+  static const onBackground = black;
+  static const surface = gray100;
+  static const onSurface = gray600;
 }

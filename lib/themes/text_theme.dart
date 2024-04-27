@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pesse/themes/colors.dart';
 
 class PesseTextTheme {
   PesseTextTheme._();
@@ -21,6 +22,7 @@ class PesseTextTheme {
       fontSize: 32,
       letterSpacing: 0,
       fontWeight: FontWeight.w700,
+      color: PesseColors.primary,
     ),
     headlineMedium: TextStyle(
       fontSize: 28,
@@ -49,6 +51,7 @@ class PesseTextTheme {
     bodyLarge: TextStyle(
       fontSize: 16,
       letterSpacing: 0.5,
+      color: PesseColors.black,
     ),
     bodyMedium: TextStyle(
       fontSize: 14,
