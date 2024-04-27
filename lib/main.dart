@@ -15,8 +15,7 @@ class PesseApp extends StatelessWidget {
     return MaterialApp(
       title: 'Pesse',
       themeMode: ThemeMode.light,
-      theme: PesseTheme.lightTheme,
-      darkTheme: PesseTheme.darkTheme,
+      theme: PesseTheme.theme,
       debugShowCheckedModeBanner: false,
       home: const LoginScreen(),
       routes: {
