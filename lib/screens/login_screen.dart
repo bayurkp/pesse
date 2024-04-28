@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:logger/logger.dart';
+import 'package:pesse/controllers/authentication_controller.dart';
 import 'package:pesse/themes/colors.dart';
 import 'package:pesse/themes/text_theme.dart';
 import 'package:pesse/themes/theme_extension.dart';
 import 'package:pesse/widgets/password_field.dart';
 import 'package:pesse/widgets/text_field.dart';
+
+var logger = Logger();
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,6 +19,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
@@ -52,61 +59,82 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: PesseTextTheme.textTheme.bodyLarge,
                   ),
                   const SizedBox(height: 40.0),
-                  PesseTextField(
-                    controller: emailController,
-                    hintText: 'Alamat Surel',
-                    keyboardType: TextInputType.emailAddress,
-                  ),
+                  _loginForm(context),
                   const SizedBox(height: 20.0),
-                  PessePasswordField(
-                    controller: passwordController,
-                    hintText: 'Kata Sandi',
-                  ),
-                  const SizedBox(height: 40.0),
-                  SizedBox(
-                    width: double.infinity,
-                    child: TextButton(
-                      onPressed: () {},
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Text(
-                          'Masuk',
-                          style: PesseTextTheme.textTheme.bodyLarge!.copyWith(
-                            color: PesseColors.onPrimary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20.0),
-                  Center(
-                    child: RichText(
-                      text: TextSpan(
-                        text: 'Belum punya akun? ',
-                        style: context.bodyMedium,
-                        children: <WidgetSpan>[
-                          WidgetSpan(
-                            child: GestureDetector(
-                              child: Text(
-                                'Daftar di sini',
-                                style: context.link.copyWith(
-                                  fontSize: 14.0,
-                                ),
-                              ),
-                              onTap: () {
-                                Navigator.pushNamed(context, '/register');
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
+                  _registerLink(context),
                 ],
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _loginForm(BuildContext context) {
+    return Form(
+      key: _formKey,
+      child: Column(
+        children: <Widget>[
+          PesseTextField(
+            controller: emailController,
+            hintText: 'Alamat Surel',
+            keyboardType: TextInputType.emailAddress,
+          ),
+          const SizedBox(height: 20.0),
+          PessePasswordField(
+            controller: passwordController,
+            hintText: 'Kata Sandi',
+          ),
+          const SizedBox(height: 20.0),
+          _loginButton(),
+        ],
+      ),
+    );
+  }
+
+  Widget _loginButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: TextButton(
+        onPressed: () {
+          login(emailController.text, passwordController.text);
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Text(
+            'Masuk',
+            style: PesseTextTheme.textTheme.bodyLarge!.copyWith(
+              color: PesseColors.onPrimary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _registerLink(BuildContext context) {
+    return Center(
+      child: RichText(
+        text: TextSpan(
+          text: 'Belum punya akun? ',
+          style: context.bodyMedium,
+          children: <WidgetSpan>[
+            WidgetSpan(
+              child: GestureDetector(
+                child: Text(
+                  'Daftar di sini',
+                  style: context.link.copyWith(
+                    fontSize: 14.0,
+                  ),
+                ),
+                onTap: () {
+                  Navigator.pushNamed(context, '/register');
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
