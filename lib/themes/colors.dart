@@ -12,6 +12,9 @@ class PesseColors {
   static const mikadoYellow = Color(0xFFFDC500);
   static const gold = Color(0xFFFFD500);
   static const red = Color(0xFFCC0000);
+  static const green = Color(0xFF008000);
+  static const yellow = Color(0xFFFFFF00);
+  static const transparent = Colors.transparent;
 
   // Grays
   static const Color gray50 = Color(0xFFFAFAFA);
@@ -32,6 +35,10 @@ class PesseColors {
   static const onSecondary = black;
   static const error = red;
   static const onError = white;
+  static const warning = yellow;
+  static const onWarning = black;
+  static const success = green;
+  static const onSuccess = white;
 
   // Light Theme Colors
   static const background = white;
