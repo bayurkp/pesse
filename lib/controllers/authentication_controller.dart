@@ -2,10 +2,8 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:logger/logger.dart';
-import 'package:pesse/models/user_model.dart';
+import 'package:pesse/models/profile_model.dart';
 
-var logger = Logger();
 final String apiUrl = dotenv.env['API_URL']!;
 
 void login(String email, String password) async {
@@ -19,7 +17,7 @@ void login(String email, String password) async {
     GetStorage().write('token', response.data['data']['token']);
     GetStorage().write('user', response.data['data']['user']);
   } on DioException catch (e) {
-    logger.e(e);
+    print(e);
   }
 }
 
@@ -38,7 +36,7 @@ void register(String email, String name, String password) async {
     GetStorage().write('token', response.data['data']['token']);
     GetStorage().write('user', response.data['data']['user']);
   } on DioException catch (e) {
-    logger.e(e);
+    print(e);
   }
 }
 
@@ -57,11 +55,11 @@ void logout() async {
     GetStorage().remove('token');
     GetStorage().remove('user');
   } on DioException catch (e) {
-    logger.e(e);
+    print(e);
   }
 }
 
-Future<User?> getUserProfile() async {
+Future<Profile?> getUserProfile() async {
   final dio = Dio();
   try {
     final response = await dio.get(
@@ -74,7 +72,7 @@ Future<User?> getUserProfile() async {
     );
     return response.data['data']['user'];
   } on DioException catch (e) {
-    logger.e(e);
+    print(e);
   }
 
   return null;

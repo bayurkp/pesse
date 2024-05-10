@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:logger/logger.dart';
 import 'package:pesse/controllers/authentication_controller.dart';
 import 'package:pesse/themes/colors.dart';
 import 'package:pesse/themes/theme_extension.dart';
+import 'package:pesse/widgets/bottom_navigation_bar.dart';
 import 'package:pesse/widgets/text_button.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -41,11 +41,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   final user = GetStorage().read('user');
 
-  var logger = Logger();
-
   @override
   Widget build(BuildContext context) {
-    logger.d(user);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: PesseColors.surface,
@@ -112,15 +109,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ],
         ),
-        child: BottomNavigationBar(
-          items: bottomNavigationBarItems,
-          currentIndex: selectedNavigationIndex,
-          onTap: onNavigationTapped,
-          selectedItemColor: PesseColors.primary,
-          unselectedItemColor: PesseColors.onSurface,
-          backgroundColor: PesseColors.surface,
-          type: BottomNavigationBarType.shifting,
-        ),
+        child: const PesseBottomNavigationBar(),
       ),
     );
   }

@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:logger/logger.dart';
 import 'package:pesse/controllers/authentication_controller.dart';
 import 'package:pesse/themes/colors.dart';
 import 'package:pesse/themes/text_theme.dart';
 import 'package:pesse/themes/theme_extension.dart';
 import 'package:pesse/widgets/password_field.dart';
 import 'package:pesse/widgets/text_field.dart';
-
-var logger = Logger();
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});

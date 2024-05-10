@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:logger/logger.dart';
 import 'package:pesse/controllers/authentication_controller.dart';
+import 'package:pesse/providers/auth_provider.dart';
 import 'package:pesse/themes/colors.dart';
 import 'package:pesse/themes/text_theme.dart';
 import 'package:pesse/themes/theme_extension.dart';
 import 'package:pesse/widgets/password_field.dart';
 import 'package:pesse/widgets/text_field.dart';
-
-var logger = Logger();
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -98,7 +97,10 @@ class _LoginScreenState extends State<LoginScreen> {
       width: double.infinity,
       child: TextButton(
         onPressed: () {
-          login(emailController.text, passwordController.text);
+          Provider.of<AuthNotifier>(context, listen: false).login(
+            email: emailController.text,
+            password: passwordController.text,
+          );
         },
         child: Padding(
           padding: const EdgeInsets.all(10.0),
