@@ -5,7 +5,7 @@ class Member {
   final String address;
   final String birthDate;
   final String phoneNumber;
-  final String imageUrl;
+  final String? imageUrl;
   final int isActive;
 
   Member(
