@@ -80,6 +80,10 @@ class AuthNotifier with ChangeNotifier {
           },
         ),
       );
+      GetStorage().remove('token');
+      GetStorage().remove('user');
+      _isLoggedIn = false;
+      notifyListeners();
     } on DioException catch (e) {
       print(e);
       _isPending = false;

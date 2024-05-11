@@ -19,8 +19,10 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
+  TextEditingController emailController =
+      TextEditingController(text: 'user@gmail.com');
+  TextEditingController passwordController =
+      TextEditingController(text: 'password');
 
   @override
   Widget build(BuildContext context) {
@@ -85,13 +87,13 @@ class _LoginScreenState extends State<LoginScreen> {
             hintText: 'Kata Sandi',
           ),
           const SizedBox(height: 20.0),
-          _loginButton(),
+          _loginButton(context),
         ],
       ),
     );
   }
 
-  Widget _loginButton() {
+  Widget _loginButton(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: TextButton(

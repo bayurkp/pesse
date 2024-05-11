@@ -91,7 +91,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 10.0),
             PesseTextButton(
               onPressed: () {
-                Provider.of<AuthNotifier>(context, listen: true).logout();
+                Provider.of<AuthNotifier>(context, listen: false).logout();
               },
               label: 'Keluar',
               color: PesseColors.error,
