@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pesse/providers/auth_provider.dart';
+import 'package:pesse/screens/add_member_screen.dart';
+import 'package:pesse/screens/edit_member_screen.dart';
+import 'package:pesse/screens/home_screen.dart';
 import 'package:pesse/screens/login_screen.dart';
+import 'package:pesse/screens/members_screen.dart';
 import 'package:pesse/screens/profile_screen.dart';
 import 'package:pesse/screens/register_screen.dart';
 
@@ -24,7 +28,7 @@ class PesseRouter {
         GoRoute(
           name: 'home',
           path: '/',
-          builder: (context, state) => const ProfileScreen(),
+          builder: (context, state) => const HomeScreen(),
         ),
         GoRoute(
           name: 'login',
@@ -37,24 +41,26 @@ class PesseRouter {
           builder: (context, state) => const RegisterScreen(),
         ),
         GoRoute(
-          name: 'profile.index',
+          name: 'profile',
           path: '/profile',
           builder: (context, state) => const ProfileScreen(),
         ),
         GoRoute(
           name: 'members.index',
           path: '/members',
-          builder: (context, state) => const ProfileScreen(),
+          builder: (context, state) => const MembersScreen(),
         ),
         GoRoute(
           name: 'member.add',
           path: '/members/add',
-          builder: (context, state) => const ProfileScreen(),
+          builder: (context, state) => const AddMemberScreen(),
         ),
         GoRoute(
           name: 'member.edit',
-          path: '/members/:id',
-          builder: (context, state) => const ProfileScreen(),
+          path: '/members/:memberId',
+          builder: (context, state) => EditMemberScreen(
+            memberId: state.pathParameters['memberId']!,
+          ),
         ),
       ],
     );
