@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get_storage/get_storage.dart';
-import 'package:pesse/controllers/authentication_controller.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pesse/providers/auth_provider.dart';
 import 'package:pesse/themes/colors.dart';
 import 'package:pesse/themes/text_theme.dart';
@@ -132,7 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 onTap: () {
-                  Navigator.pushNamed(context, '/register');
+                  context.goNamed('register');
                 },
               ),
             ),

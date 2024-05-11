@@ -43,11 +43,18 @@ class PesseApp extends StatelessWidget {
   final _router = GoRouter(
     initialLocation: '/',
     redirect: (context, state) {
-      if (Provider.of<AuthNotifier>(context, listen: true).isLoggedIn ==
-          false) {
-        return '/login';
+      bool isLoggedIn =
+          Provider.of<AuthNotifier>(context, listen: false).isLoggedIn;
+
+      if (isLoggedIn) {
+        return null;
       } else {
-        return '/';
+        print(state.uri.path);
+        if (state.uri.path == '/register') {
+          return null;
+        } else {
+          return '/login';
+        }
       }
     },
     routes: <GoRoute>[

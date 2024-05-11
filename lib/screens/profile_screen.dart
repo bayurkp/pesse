@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:pesse/controllers/authentication_controller.dart';
+import 'package:pesse/providers/auth_provider.dart';
 import 'package:pesse/themes/colors.dart';
 import 'package:pesse/themes/theme_extension.dart';
 import 'package:pesse/widgets/bottom_navigation_bar.dart';
 import 'package:pesse/widgets/text_button.dart';
+import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -90,8 +91,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 10.0),
             PesseTextButton(
               onPressed: () {
-                logout();
-                Navigator.pushNamed(context, '/login');
+                Provider.of<AuthNotifier>(context, listen: true).logout();
               },
               label: 'Keluar',
               color: PesseColors.error,

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get_storage/get_storage.dart';
-import 'package:pesse/controllers/authentication_controller.dart';
+import 'package:go_router/go_router.dart';
+import 'package:pesse/providers/auth_provider.dart';
 import 'package:pesse/themes/colors.dart';
 import 'package:pesse/themes/text_theme.dart';
 import 'package:pesse/themes/theme_extension.dart';
 import 'package:pesse/widgets/password_field.dart';
 import 'package:pesse/widgets/text_field.dart';
+import 'package:provider/provider.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -97,8 +98,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
       width: double.infinity,
       child: TextButton(
         onPressed: () {
-          register(emailController.text, nameController.text,
-              passwordController.text);
+          Provider.of<AuthNotifier>(context, listen: false).register(
+            email: emailController.text,
+            name: nameController.text,
+            password: passwordController.text,
+          );
         },
         child: Padding(
           padding: const EdgeInsets.all(10.0),
@@ -130,7 +134,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
                 onTap: () {
-                  Navigator.pushNamed(context, '/login');
+                  context.go('/login');
                 },
               ),
             ),
