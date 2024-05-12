@@ -12,22 +12,23 @@ class AuthNotifier with ChangeNotifier {
   String _message = '';
   bool _isSuccess = true;
   bool _isLoggedIn = false;
-  Profile userProfile = Profile(id: 0, email: '', name: '');
+  Profile _userProfile = Profile(id: 0, email: '', name: '');
 
   get isPending => _isPending;
   get message => _message;
   get isSuccess => _isSuccess;
   get isLoggedIn => _isLoggedIn;
+  get userProfile => _userProfile;
 
   Future<void> login({required String email, required String password}) async {
     _isPending = true;
+    notifyListeners();
+
     try {
       final response = await dio.post('$apiUrl/login', data: {
         'email': email,
         'password': password,
       });
-
-      print(response);
 
       GetStorage().write('token', response.data['data']['token']);
       GetStorage().write('user', response.data['data']['user']);
@@ -47,6 +48,8 @@ class AuthNotifier with ChangeNotifier {
       required String email,
       required String password}) async {
     _isPending = true;
+    notifyListeners();
+
     try {
       final response = await dio.post(
         '$apiUrl/register',
@@ -71,6 +74,8 @@ class AuthNotifier with ChangeNotifier {
 
   Future<void> logout() async {
     _isPending = true;
+    notifyListeners();
+
     try {
       await dio.get(
         '$apiUrl/logout',
@@ -93,6 +98,8 @@ class AuthNotifier with ChangeNotifier {
 
   Future<void> getProfile() async {
     _isPending = true;
+    notifyListeners();
+
     try {
       final response = await dio.get(
         '$apiUrl/user',
@@ -100,7 +107,7 @@ class AuthNotifier with ChangeNotifier {
 
       dynamic user = response.data['data']['user'];
 
-      userProfile = Profile(email: user.email, name: user.name, id: user.id);
+      _userProfile = Profile(email: user.email, name: user.name, id: user.id);
       _isPending = false;
       notifyListeners();
     } on DioException catch (e) {
