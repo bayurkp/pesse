@@ -31,7 +31,7 @@ class _PesseTextButtonState extends State<PesseTextButton> {
         ),
         onPressed: widget.onPressed,
         child: Padding(
-          padding: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.all(15.0),
           child: Text(
             widget.label,
             style: context.body.copyWith(
