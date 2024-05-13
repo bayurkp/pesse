@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pesse/providers/auth_provider.dart';
-import 'package:pesse/themes/colors.dart';
 import 'package:pesse/themes/text_theme.dart';
 import 'package:pesse/themes/theme_extension.dart';
 import 'package:pesse/widgets/password_field.dart';
+import 'package:pesse/widgets/text_button.dart';
 import 'package:pesse/widgets/text_field.dart';
 import 'package:provider/provider.dart';
 
@@ -94,26 +94,14 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _loginButton(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: TextButton(
-        onPressed: () {
-          Provider.of<AuthNotifier>(context, listen: false).login(
-            email: emailController.text,
-            password: passwordController.text,
-          );
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Text(
-            'Masuk',
-            style: PesseTextTheme.textTheme.bodyLarge!.copyWith(
-              color: PesseColors.onPrimary,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      ),
+    return PesseTextButton(
+      onPressed: () {
+        Provider.of<AuthNotifier>(context, listen: false).login(
+          email: emailController.text,
+          password: passwordController.text,
+        );
+      },
+      label: 'Masuk',
     );
   }
 

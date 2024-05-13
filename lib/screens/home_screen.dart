@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pesse/widgets/bottom_navigation_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,9 +16,9 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text('Pesse'),
       ),
       body: Container(
-        color: Colors.red,
         child: const Text('Home Screen'),
       ),
+      bottomNavigationBar: PesseBottomNavigationBar(),
     );
   }
 }

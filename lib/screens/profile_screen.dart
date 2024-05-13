@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pesse/providers/auth_provider.dart';
 import 'package:pesse/themes/colors.dart';
 import 'package:pesse/themes/theme_extension.dart';
@@ -91,6 +92,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 10.0),
             PesseTextButton(
               onPressed: () {
+                context.goNamed('login');
                 Provider.of<AuthNotifier>(context, listen: false).logout();
               },
               label: 'Keluar',

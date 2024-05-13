@@ -3,6 +3,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:pesse/configs/router.dart';
 import 'package:pesse/providers/auth_provider.dart';
+import 'package:pesse/providers/bottom_navigation_provider.dart';
+import 'package:pesse/providers/member_provider.dart';
 import 'package:pesse/themes/theme.dart';
 import 'package:provider/provider.dart';
 
@@ -22,8 +24,16 @@ class PesseApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider<AuthNotifier>(
           create: (context) => AuthNotifier(),
+        ),
+        ChangeNotifierProvider<MemberNotifier>(
+          create: (context) => MemberNotifier(),
+        ),
+        ChangeNotifierProvider<BottomNavigationNotifier>(
+          create: (context) => BottomNavigationNotifier(),
         )
       ],
+
+      // Dev
       child: Consumer<AuthNotifier>(
         builder: (context, auth, child) {
           final router = PesseRouter.configureRouter(context, auth);
@@ -39,6 +49,15 @@ class PesseApp extends StatelessWidget {
           );
         },
       ),
+
+      // Test
+      // child: MaterialApp(
+      //   title: 'Pesse',
+      //   themeMode: ThemeMode.light,
+      //   theme: PesseTheme.theme,
+      //   debugShowCheckedModeBanner: false,
+      //   home: AddMemberScreen(),
+      // ),
     );
   }
 }
