@@ -11,7 +11,7 @@ class AuthNotifier with ChangeNotifier {
   bool _isPending = false;
   String _message = '';
   bool _isSuccess = true;
-  bool _isLoggedIn = false;
+  bool _isLoggedIn = GetStorage().read('token') != null;
   Profile _userProfile = Profile(id: 0, email: '', name: '');
 
   get isPending => _isPending;
@@ -76,17 +76,19 @@ class AuthNotifier with ChangeNotifier {
     _isPending = true;
     notifyListeners();
 
+    final token = GetStorage().read('token');
+    GetStorage().remove('token');
+
     try {
       await dio.get(
         '$apiUrl/logout',
         options: Options(
           headers: {
-            'Authorization': 'Bearer ${GetStorage().read('token')}',
+            'Authorization': 'Bearer $token',
           },
         ),
       );
-      GetStorage().remove('token');
-      GetStorage().remove('user');
+
       _isLoggedIn = false;
       notifyListeners();
     } on DioException catch (e) {
