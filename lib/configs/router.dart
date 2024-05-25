@@ -8,12 +8,17 @@ import 'package:pesse/screens/login_screen.dart';
 import 'package:pesse/screens/members_screen.dart';
 import 'package:pesse/screens/profile_screen.dart';
 import 'package:pesse/screens/register_screen.dart';
+import 'package:pesse/screens/test_screen.dart';
 
 class PesseRouter {
   static GoRouter configureRouter(BuildContext context, AuthNotifier auth) {
     return GoRouter(
       initialLocation: '/',
       redirect: (context, state) {
+        if (state.uri.path == '/test') {
+          return null;
+        }
+
         if (auth.isLoggedIn) {
           return null;
         } else {
@@ -61,6 +66,11 @@ class PesseRouter {
           builder: (context, state) => EditMemberScreen(
             memberId: state.pathParameters['memberId']!,
           ),
+        ),
+        GoRoute(
+          name: 'test',
+          path: '/test',
+          builder: (context, state) => const TestScreen(),
         ),
       ],
     );

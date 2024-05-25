@@ -35,10 +35,14 @@ class AuthNotifier with ChangeNotifier {
 
       _isPending = false;
       _isLoggedIn = true;
+      _isSuccess = true;
+      _message = response.data['message'];
       notifyListeners();
     } on DioException catch (e) {
-      print(e);
+      print(e.response!.data);
       _isPending = false;
+      _isSuccess = false;
+      _message = e.response!.data['message'];
       notifyListeners();
     }
   }
@@ -64,10 +68,14 @@ class AuthNotifier with ChangeNotifier {
 
       _isPending = false;
       _isLoggedIn = true;
+      _isSuccess = true;
+      _message = response.data['message'];
       notifyListeners();
     } on DioException catch (e) {
-      print(e);
+      print(e.response!.data);
       _isPending = false;
+      _isSuccess = false;
+      _message = e.response!.data['message'].toString();
       notifyListeners();
     }
   }
@@ -80,7 +88,7 @@ class AuthNotifier with ChangeNotifier {
     GetStorage().remove('token');
 
     try {
-      await dio.get(
+      final response = await dio.get(
         '$apiUrl/logout',
         options: Options(
           headers: {
@@ -89,11 +97,16 @@ class AuthNotifier with ChangeNotifier {
         ),
       );
 
+      _isPending = false;
       _isLoggedIn = false;
+      _isSuccess = true;
+      _message = response.data['message'];
       notifyListeners();
     } on DioException catch (e) {
-      print(e);
+      print(e.response!.data);
       _isPending = false;
+      _isSuccess = false;
+      _message = e.response!.data['message'];
       notifyListeners();
     }
   }
@@ -111,10 +124,14 @@ class AuthNotifier with ChangeNotifier {
 
       _userProfile = Profile(email: user.email, name: user.name, id: user.id);
       _isPending = false;
+      _isSuccess = true;
+      _message = response.data['message'];
       notifyListeners();
     } on DioException catch (e) {
-      print(e);
+      print(e.response!.data);
       _isPending = false;
+      _isSuccess = false;
+      _message = e.response!.data['message'];
       notifyListeners();
     }
   }

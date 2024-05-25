@@ -45,9 +45,6 @@ class _PesseTextFieldState extends State<PesseTextField> {
             }
           },
         ),
-        const SizedBox(
-          height: 8.0,
-        ),
         TextField(
           keyboardType: widget.keyboardType,
           controller: widget.controller,

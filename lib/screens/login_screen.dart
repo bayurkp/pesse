@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pesse/providers/auth_provider.dart';
 import 'package:pesse/themes/text_theme.dart';
 import 'package:pesse/themes/theme_extension.dart';
+import 'package:pesse/utils/show_alert_dialog.dart';
 import 'package:pesse/widgets/password_field.dart';
 import 'package:pesse/widgets/text_button.dart';
 import 'package:pesse/widgets/text_field.dart';
@@ -26,48 +27,66 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(40.0),
-          child: Center(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  SvgPicture.asset(
-                    'assets/images/logo.svg',
-                    semanticsLabel: 'Pesse\'s Logo',
-                    height: 25.0,
+    return Consumer<AuthNotifier>(
+      builder: (context, authNotifier, child) {
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) {
+            if (authNotifier.isSuccess == false) {
+              showPesseAlertDialog(
+                context,
+                title: 'Gagal',
+                content: '${authNotifier.message}',
+              );
+            }
+          },
+        );
+
+        return authNotifier.isPending
+            ? const Center(child: CircularProgressIndicator())
+            : Scaffold(
+                body: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.all(40.0),
+                    child: Center(
+                      child: SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            SvgPicture.asset(
+                              'assets/images/logo.svg',
+                              semanticsLabel: 'Pesse\'s Logo',
+                              height: 25.0,
+                            ),
+                            const SizedBox(height: 40.0),
+                            SvgPicture.asset(
+                              'assets/images/make_it_rain.svg',
+                              semanticsLabel: 'Make It Rain',
+                              height: 200.0,
+                            ),
+                            const SizedBox(height: 40.0),
+                            Text(
+                              'Masuk',
+                              style: PesseTextTheme.textTheme.headlineLarge,
+                            ),
+                            const SizedBox(height: 10.0),
+                            Text(
+                              'Selamat datang kembali, Pessian!',
+                              style: PesseTextTheme.textTheme.bodyLarge,
+                            ),
+                            const SizedBox(height: 40.0),
+                            _loginForm(context),
+                            const SizedBox(height: 20.0),
+                            _registerLink(context),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 40.0),
-                  SvgPicture.asset(
-                    'assets/images/make_it_rain.svg',
-                    semanticsLabel: 'Make It Rain',
-                    height: 200.0,
-                  ),
-                  const SizedBox(height: 40.0),
-                  Text(
-                    'Masuk',
-                    style: PesseTextTheme.textTheme.headlineLarge,
-                  ),
-                  const SizedBox(height: 10.0),
-                  Text(
-                    'Selamat datang kembali, Pessian!',
-                    style: PesseTextTheme.textTheme.bodyLarge,
-                  ),
-                  const SizedBox(height: 40.0),
-                  _loginForm(context),
-                  const SizedBox(height: 20.0),
-                  _registerLink(context),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
+                ),
+              );
+      },
     );
   }
 

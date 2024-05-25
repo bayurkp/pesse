@@ -49,15 +49,6 @@ class PesseApp extends StatelessWidget {
           );
         },
       ),
-
-      // Test
-      // child: MaterialApp(
-      //   title: 'Pesse',
-      //   themeMode: ThemeMode.light,
-      //   theme: PesseTheme.theme,
-      //   debugShowCheckedModeBanner: false,
-      //   home: AddMemberScreen(),
-      // ),
     );
   }
 }
