@@ -57,10 +57,14 @@ class MemberNotifier extends ChangeNotifier {
           .toList();
 
       _isPending = false;
+      _isSuccess = true;
+      _message = response.data['message'];
       notifyListeners();
     } on DioException catch (e) {
       print(e.response?.data);
       _isPending = false;
+      _isSuccess = false;
+      _message = e.response!.data['message'].toString();
       notifyListeners();
     }
   }
@@ -93,10 +97,14 @@ class MemberNotifier extends ChangeNotifier {
 
       _member = member;
       _isPending = false;
+      _isSuccess = true;
+      _message = response.data['message'];
       notifyListeners();
     } on DioException catch (e) {
       print(e.response?.data);
       _isPending = false;
+      _isSuccess = false;
+      _message = e.response!.data['message'].toString();
       notifyListeners();
     }
   }
@@ -133,9 +141,13 @@ class MemberNotifier extends ChangeNotifier {
 
       _members.add(member);
       _isPending = false;
+      _isSuccess = true;
+      _message = response.data['message'];
       notifyListeners();
     } on DioException catch (e) {
       _isPending = false;
+      _isSuccess = false;
+      _message = e.response!.data['message'].toString();
       print(e.response?.data);
       notifyListeners();
     }
@@ -148,7 +160,7 @@ class MemberNotifier extends ChangeNotifier {
     Map<String, dynamic> memberJson = member.toJson();
 
     try {
-      await _dio.put(
+      final response = await _dio.put(
         '$_apiUrl/anggota/${member.id}',
         data: memberJson,
         options: Options(
@@ -158,9 +170,13 @@ class MemberNotifier extends ChangeNotifier {
 
       _members[_members.indexWhere((m) => m.id == member.id)] = member;
       _isPending = false;
+      _isSuccess = true;
+      _message = response.data['message'];
       notifyListeners();
     } on DioException catch (e) {
       _isPending = false;
+      _isSuccess = false;
+      _message = e.response!.data['message'].toString();
       print(e.response?.data);
       notifyListeners();
     }
@@ -171,7 +187,7 @@ class MemberNotifier extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _dio.delete(
+      final response = await _dio.delete(
         '$_apiUrl/anggota/$memberId',
         options: Options(
           headers: {'Authorization': 'Bearer ${GetStorage().read('token')}'},
@@ -180,9 +196,13 @@ class MemberNotifier extends ChangeNotifier {
 
       _members.removeWhere((member) => member.id == memberId);
       _isPending = false;
+      _isSuccess = true;
+      _message = response.data['message'];
       notifyListeners();
     } on DioException catch (e) {
       _isPending = false;
+      _isSuccess = false;
+      _message = e.response!.data['message'].toString();
       print(e.response?.data);
       notifyListeners();
     }

@@ -26,174 +26,196 @@ class MemberForm extends StatefulWidget {
 }
 
 class _MemberFormState extends State<MemberForm> {
-  int? _isActive;
+  late int isActive;
+  final _formKey = GlobalKey<FormState>();
+  final memberNumberController = TextEditingController();
+  final nameController = TextEditingController();
+  final addressController = TextEditingController();
+  final birthDateController = TextEditingController();
+  final phoneNumberController = TextEditingController();
+  final imageUrlController = TextEditingController();
 
   @override
-  Widget build(BuildContext context) {
-    GlobalKey formKey = GlobalKey<FormState>();
-    final memberNumberController = TextEditingController();
-    final nameController = TextEditingController();
-    final addressController = TextEditingController();
-    final birthDateController = TextEditingController();
-    final phoneNumberController = TextEditingController();
-    final imageUrlController = TextEditingController();
-
-    if (widget.formType == MemberFormType.edit) {
+  void initState() {
+    super.initState();
+    if (widget.formType == MemberFormType.edit && widget.member != null) {
       memberNumberController.text = widget.member!.memberNumber.toString();
       nameController.text = widget.member!.name;
       addressController.text = widget.member!.address;
       birthDateController.text = widget.member!.birthDate;
       phoneNumberController.text = widget.member!.phoneNumber;
       imageUrlController.text = widget.member?.imageUrl ?? '';
-      _isActive = widget.member!.isActive;
+      isActive = widget.member!.isActive;
+    } else {
+      isActive = 1;
     }
+  }
 
-    void handleRadioValueChange(int? value) {
-      setState(() {
-        _isActive = value;
-      });
+  void handleRadioValueChange(int? value) {
+    setState(() {
+      isActive = value ?? 1;
+    });
+  }
+
+  Future<void> selectDate() async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime(2100),
+    );
+
+    if (pickedDate != null) {
+      birthDateController.text = pickedDate.toString().substring(0, 10);
     }
+  }
 
-    Future<void> selectDate() async {
-      DateTime? pickedDate = await showDatePicker(
-        context: context,
-        initialDate: DateTime.now(),
-        firstDate: DateTime(1900),
-        lastDate: DateTime(2100),
-      );
+  @override
+  void dispose() {
+    memberNumberController.dispose();
+    nameController.dispose();
+    addressController.dispose();
+    birthDateController.dispose();
+    phoneNumberController.dispose();
+    imageUrlController.dispose();
+    super.dispose();
+  }
 
-      if (pickedDate != null) {
-        birthDateController.text = pickedDate.toString().substring(0, 10);
-      }
-    }
-
-    return Form(
-      key: formKey,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          PesseTextField(
-            labelText: 'Nomor Induk',
-            controller: memberNumberController,
-          ),
-          const SizedBox(height: 20.0),
-          PesseTextField(
-            labelText: 'Nama',
-            controller: nameController,
-          ),
-          const SizedBox(height: 20.0),
-          PesseTextField(
-            labelText: 'Alamat',
-            controller: addressController,
-          ),
-          const SizedBox(height: 20.0),
-          PesseTextField(
-            labelText: 'Tanggal Lahir',
-            controller: birthDateController,
-            hintText: 'TTTT-BB-HH',
-            suffixIcon: const Icon(Icons.calendar_month),
-            readOnly: true,
-            onTap: () {
-              selectDate();
-            },
-          ),
-          const SizedBox(height: 20.0),
-          PesseTextField(
-            labelText: 'Telepon',
-            controller: phoneNumberController,
-          ),
-          const SizedBox(height: 20.0),
-          PesseTextField(
-            labelText: 'Gambar',
-            controller: imageUrlController,
-          ),
-          const SizedBox(height: 20.0),
-          Container(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              'Status',
-              style: context.label,
-            ),
-          ),
-          const SizedBox(height: 8.0),
-          Row(
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<MemberNotifier>(
+      builder: (context, memberNotifier, child) {
+        return Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              Expanded(
-                child: RadioListTile<int>(
-                  title: Text(
-                    'Aktif',
-                    style: context.label,
-                  ),
-                  tileColor: PesseColors.surface,
-                  contentPadding: const EdgeInsets.all(5.0),
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(15.0),
-                    ),
-                  ),
-                  value: 1,
-                  groupValue: _isActive,
-                  onChanged: handleRadioValueChange,
+              PesseTextField(
+                labelText: 'Nomor Induk',
+                controller: memberNumberController,
+              ),
+              const SizedBox(height: 20.0),
+              PesseTextField(
+                labelText: 'Nama',
+                controller: nameController,
+              ),
+              const SizedBox(height: 20.0),
+              PesseTextField(
+                labelText: 'Alamat',
+                controller: addressController,
+              ),
+              const SizedBox(height: 20.0),
+              PesseTextField(
+                labelText: 'Tanggal Lahir',
+                controller: birthDateController,
+                hintText: 'TTTT-BB-HH',
+                suffixIcon: const Icon(Icons.calendar_month),
+                readOnly: true,
+                onTap: () {
+                  selectDate();
+                },
+              ),
+              const SizedBox(height: 20.0),
+              PesseTextField(
+                labelText: 'Telepon',
+                controller: phoneNumberController,
+              ),
+              const SizedBox(height: 20.0),
+              PesseTextField(
+                labelText: 'Gambar',
+                controller: imageUrlController,
+              ),
+              const SizedBox(height: 20.0),
+              Container(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Status',
+                  style: context.label,
                 ),
               ),
-              const SizedBox(
-                width: 10,
-              ),
-              Expanded(
-                child: RadioListTile<int>(
-                  title: Text(
-                    'Tidak Aktif',
-                    style: context.label,
-                  ),
-                  tileColor: PesseColors.surface,
-                  contentPadding: const EdgeInsets.all(5.0),
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(15.0),
+              const SizedBox(height: 8.0),
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    child: RadioListTile<int>(
+                      title: Text(
+                        'Aktif',
+                        style: context.label,
+                      ),
+                      tileColor: PesseColors.surface,
+                      contentPadding: const EdgeInsets.all(5.0),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(15.0),
+                        ),
+                      ),
+                      value: 1,
+                      groupValue: isActive,
+                      onChanged: handleRadioValueChange,
                     ),
                   ),
-                  value: 0,
-                  groupValue: _isActive,
-                  onChanged: handleRadioValueChange,
-                ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                    child: RadioListTile<int>(
+                      title: Text(
+                        'Tidak Aktif',
+                        style: context.label,
+                      ),
+                      tileColor: PesseColors.surface,
+                      contentPadding: const EdgeInsets.all(5.0),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(15.0),
+                        ),
+                      ),
+                      value: 0,
+                      groupValue: isActive,
+                      onChanged: handleRadioValueChange,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20.0),
+              PesseTextButton(
+                onPressed: () {
+                  final newMember = Member(
+                    id: widget.formType == MemberFormType.edit
+                        ? widget.member!.id
+                        : 0,
+                    memberNumber: int.parse(memberNumberController.text),
+                    name: nameController.text,
+                    address: addressController.text,
+                    birthDate: birthDateController.text,
+                    phoneNumber: phoneNumberController.text,
+                    imageUrl: imageUrlController.text,
+                    isActive: isActive,
+                  );
+
+                  if (widget.formType == MemberFormType.edit) {
+                    memberNotifier.updateMember(
+                      member: newMember,
+                    );
+                  } else {
+                    memberNotifier.addMember(
+                      member: newMember,
+                    );
+                  }
+
+                  if (memberNotifier.isSuccess == true) {
+                    context.goNamed('members.index');
+                  }
+                },
+                label: widget.formType == MemberFormType.add
+                    ? 'Tambah Anggota'
+                    : 'Edit Anggota',
               ),
             ],
           ),
-          const SizedBox(height: 20.0),
-          PesseTextButton(
-            onPressed: () {
-              final newMember = Member(
-                id: widget.formType == MemberFormType.edit
-                    ? widget.member!.id
-                    : 0,
-                memberNumber: int.parse(memberNumberController.text),
-                name: nameController.text,
-                address: addressController.text,
-                birthDate: birthDateController.text,
-                phoneNumber: phoneNumberController.text,
-                imageUrl: imageUrlController.text,
-                isActive: _isActive ?? 1,
-              );
-
-              if (widget.formType == MemberFormType.edit) {
-                Provider.of<MemberNotifier>(context, listen: false)
-                    .updateMember(
-                  member: newMember,
-                );
-              } else {
-                Provider.of<MemberNotifier>(context, listen: false).addMember(
-                  member: newMember,
-                );
-              }
-              context.goNamed('members.index');
-            },
-            label: widget.formType == MemberFormType.add
-                ? 'Tambah Anggota'
-                : 'Edit Anggota',
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

@@ -22,15 +22,15 @@ class _MembersScreenState extends State<MembersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Anggota'),
-      ),
-      body: Consumer<MemberNotifier>(
-        builder: (context, memberNotifier, child) {
-          return memberNotifier.isPending
-              ? const Center(child: CircularProgressIndicator())
-              : ListView.builder(
+    return Consumer<MemberNotifier>(
+      builder: (context, memberNotifier, child) {
+        return memberNotifier.isPending
+            ? const Center(child: CircularProgressIndicator())
+            : Scaffold(
+                appBar: AppBar(
+                  title: const Text('Anggota'),
+                ),
+                body: ListView.builder(
                   itemCount: memberNotifier.members.length,
                   itemBuilder: (context, index) {
                     return ListTile(
@@ -64,16 +64,16 @@ class _MembersScreenState extends State<MembersScreen> {
                       leading: const Icon(Icons.account_circle),
                     );
                   },
-                );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          context.pushNamed('member.add');
-        },
-        child: const Icon(Icons.add),
-      ),
-      bottomNavigationBar: const PesseBottomNavigationBar(),
+                ),
+                floatingActionButton: FloatingActionButton(
+                  onPressed: () {
+                    context.pushNamed('member.add');
+                  },
+                  child: const Icon(Icons.add),
+                ),
+                bottomNavigationBar: const PesseBottomNavigationBar(),
+              );
+      },
     );
   }
 }
