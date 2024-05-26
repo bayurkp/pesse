@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pesse/themes/colors.dart';
 import 'package:pesse/themes/theme_extension.dart';
 
 class PesseTextField extends StatefulWidget {
@@ -10,6 +11,7 @@ class PesseTextField extends StatefulWidget {
   final Icon? prefixIcon;
   final Icon? suffixIcon;
   final Function()? onTap;
+  final Color backgroundColor;
 
   const PesseTextField({
     super.key,
@@ -21,6 +23,7 @@ class PesseTextField extends StatefulWidget {
     this.prefixIcon,
     this.suffixIcon,
     this.onTap,
+    this.backgroundColor = PesseColors.surface,
   });
 
   @override
@@ -45,6 +48,9 @@ class _PesseTextFieldState extends State<PesseTextField> {
             }
           },
         ),
+        SizedBox(
+          height: widget.labelText == null ? 0.0 : 4.0,
+        ),
         TextField(
           keyboardType: widget.keyboardType,
           controller: widget.controller,
@@ -52,6 +58,7 @@ class _PesseTextFieldState extends State<PesseTextField> {
           onTap: widget.onTap,
           textAlign: TextAlign.left,
           decoration: InputDecoration(
+            fillColor: widget.backgroundColor,
             prefixIcon: widget.prefixIcon,
             suffixIcon: Transform.translate(
               offset: const Offset(-15, 0),

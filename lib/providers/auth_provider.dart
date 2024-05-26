@@ -86,6 +86,7 @@ class AuthNotifier with ChangeNotifier {
 
     final token = GetStorage().read('token');
     GetStorage().remove('token');
+    _isLoggedIn = false;
 
     try {
       final response = await dio.get(

@@ -16,10 +16,7 @@ class PesseAlertDialog extends StatelessWidget {
     required this.content,
     this.actionLabel,
     this.actionOnPressed,
-  }) : assert(
-          actionLabel == null || actionOnPressed == null,
-          'actionLabel cannot be empty if actionOnPressed is provided or vice versa.',
-        );
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,13 +31,8 @@ class PesseAlertDialog extends StatelessWidget {
       actions: <Widget>[
         Builder(
           builder: (context) {
-            if (actionLabel == null ||
-                actionOnPressed == null ||
-                (actionLabel == null && actionOnPressed == null)) {
+            if (actionLabel != null && actionOnPressed != null) {
               return TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
                 style: ButtonStyle(
                   padding: const MaterialStatePropertyAll<EdgeInsetsGeometry>(
                     EdgeInsets.all(20.0),
@@ -51,22 +43,37 @@ class PesseAlertDialog extends StatelessWidget {
                     ),
                   ),
                 ),
-                child: const Text('Tutup'),
-              );
-            } else {
-              return TextButton(
                 child: Text(actionLabel!),
                 onPressed: () {
                   actionOnPressed!();
                 },
               );
+            } else {
+              return Container();
             }
           },
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          style: ButtonStyle(
+            padding: const MaterialStatePropertyAll<EdgeInsetsGeometry>(
+              EdgeInsets.all(20.0),
+            ),
+            shape: MaterialStatePropertyAll<RoundedRectangleBorder>(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.0),
+              ),
+            ),
+          ),
+          child: const Text('Tutup'),
         ),
       ],
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20.0),
       ),
+      surfaceTintColor: PesseColors.background,
     );
   }
 }
