@@ -5,6 +5,7 @@ import 'package:pesse/screens/add_member_screen.dart';
 import 'package:pesse/screens/edit_member_screen.dart';
 import 'package:pesse/screens/home_screen.dart';
 import 'package:pesse/screens/login_screen.dart';
+import 'package:pesse/screens/member_details_screen.dart';
 import 'package:pesse/screens/members_screen.dart';
 import 'package:pesse/screens/profile_screen.dart';
 import 'package:pesse/screens/register_screen.dart';
@@ -62,8 +63,15 @@ class PesseRouter {
         ),
         GoRoute(
           name: 'member.edit',
-          path: '/members/:memberId',
+          path: '/members/:memberId/edit',
           builder: (context, state) => EditMemberScreen(
+            memberId: state.pathParameters['memberId']!,
+          ),
+        ),
+        GoRoute(
+          name: 'member.details',
+          path: '/members/:memberId',
+          builder: (context, state) => MemberDetailsScreen(
             memberId: state.pathParameters['memberId']!,
           ),
         ),
