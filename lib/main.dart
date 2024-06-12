@@ -32,8 +32,8 @@ class PesseApp extends StatelessWidget {
         ChangeNotifierProvider<BottomNavigationNotifier>(
           create: (context) => BottomNavigationNotifier(),
         ),
-        ChangeNotifierProvider<TransactionNotifer>(
-          create: (context) => TransactionNotifer(),
+        ChangeNotifierProvider<TransactionNotifier>(
+          create: (context) => TransactionNotifier(),
         ),
       ],
 

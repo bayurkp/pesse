@@ -8,10 +8,11 @@ class PesseTextField extends StatefulWidget {
   final String? hintText;
   final TextInputType keyboardType;
   final bool readOnly;
-  final Icon? prefixIcon;
-  final Icon? suffixIcon;
+  final Widget? prefixIcon;
+  final Widget? suffixIcon;
   final Function()? onTap;
   final Color backgroundColor;
+  final EdgeInsetsGeometry? contentPadding;
 
   const PesseTextField({
     super.key,
@@ -24,6 +25,7 @@ class PesseTextField extends StatefulWidget {
     this.suffixIcon,
     this.onTap,
     this.backgroundColor = PesseColors.surface,
+    this.contentPadding,
   });
 
   @override
@@ -65,6 +67,7 @@ class _PesseTextFieldState extends State<PesseTextField> {
               child: widget.suffixIcon,
             ),
             hintText: widget.hintText,
+            contentPadding: widget.contentPadding,
           ),
         ),
       ],
