@@ -34,51 +34,78 @@ class PesseRouter {
         GoRoute(
           name: 'home',
           path: '/',
-          builder: (context, state) => const HomeScreen(),
+          pageBuilder: (context, state) => NoTransitionPage<void>(
+            key: state.pageKey,
+            child: const HomeScreen(),
+          ),
         ),
         GoRoute(
           name: 'login',
           path: '/login',
-          builder: (context, state) => const LoginScreen(),
+          pageBuilder: (context, state) => NoTransitionPage<void>(
+            key: state.pageKey,
+            child: const LoginScreen(),
+          ),
         ),
         GoRoute(
           name: 'register',
           path: '/register',
-          builder: (context, state) => const RegisterScreen(),
+          pageBuilder: (context, state) => NoTransitionPage<void>(
+            key: state.pageKey,
+            child: const RegisterScreen(),
+          ),
         ),
         GoRoute(
           name: 'profile',
           path: '/profile',
-          builder: (context, state) => const ProfileScreen(),
+          pageBuilder: (context, state) => NoTransitionPage<void>(
+            key: state.pageKey,
+            child: const ProfileScreen(),
+          ),
         ),
         GoRoute(
           name: 'members.index',
           path: '/members',
-          builder: (context, state) => const MembersScreen(),
+          pageBuilder: (context, state) => NoTransitionPage<void>(
+            key: state.pageKey,
+            child: const MembersScreen(),
+          ),
         ),
         GoRoute(
           name: 'member.add',
           path: '/members/add',
-          builder: (context, state) => const AddMemberScreen(),
+          pageBuilder: (context, state) => NoTransitionPage<void>(
+            key: state.pageKey,
+            child: const AddMemberScreen(),
+          ),
         ),
         GoRoute(
           name: 'member.edit',
           path: '/members/:memberId/edit',
-          builder: (context, state) => EditMemberScreen(
-            memberId: state.pathParameters['memberId']!,
+          pageBuilder: (context, state) => NoTransitionPage<void>(
+            key: state.pageKey,
+            child: EditMemberScreen(
+              memberId: state.pathParameters['memberId']!,
+            ),
           ),
         ),
         GoRoute(
           name: 'member.details',
           path: '/members/:memberId',
-          builder: (context, state) => MemberDetailsScreen(
-            memberId: state.pathParameters['memberId']!,
+          pageBuilder: (context, state) => NoTransitionPage<void>(
+            key: state.pageKey,
+            child: MemberDetailsScreen(
+              memberId: state.pathParameters['memberId']!,
+            ),
           ),
         ),
         GoRoute(
           name: 'test',
           path: '/test',
-          builder: (context, state) => const TestScreen(),
+          pageBuilder: (context, state) => NoTransitionPage<void>(
+            key: state.pageKey,
+            child: TestScreen(),
+          ),
         ),
       ],
     );
