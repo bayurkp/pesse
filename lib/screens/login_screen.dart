@@ -35,7 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
               showPesseAlertDialog(
                 context,
                 title: 'Gagal',
-                content: '${authNotifier.message}',
+                content: Text(authNotifier.message),
               );
             }
           },

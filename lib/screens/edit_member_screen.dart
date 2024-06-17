@@ -36,7 +36,7 @@ class _EditMemberScreenState extends State<EditMemberScreen> {
             showPesseAlertDialog(
               context,
               title: 'Gagal',
-              content: memberNotifier.message,
+              content: Text(memberNotifier.message),
             );
           }
         },

@@ -74,17 +74,17 @@ class _MembesrScreenState extends State<MembersScreen> {
   Widget build(BuildContext context) {
     return Consumer<MemberNotifier>(
       builder: (context, memberNotifier, child) {
-        // WidgetsBinding.instance.addPostFrameCallback(
-        //   (_) {
-        //     if (memberNotifier.isSuccess == false) {
-        //       showPesseAlertDialog(
-        //         context,
-        //         title: 'Gagal',
-        //         content: memberNotifier.message,
-        //       );
-        //     }
-        //   },
-        // );
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) {
+            if (memberNotifier.isSuccess == false) {
+              showPesseAlertDialog(
+                context,
+                title: 'Gagal',
+                content: Text(memberNotifier.message),
+              );
+            }
+          },
+        );
 
         filteredMembers = memberNotifier.members;
         return Scaffold(

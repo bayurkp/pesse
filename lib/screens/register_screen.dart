@@ -34,7 +34,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               showPesseAlertDialog(
                 context,
                 title: 'Gagal',
-                content: '${authNotifier.message}',
+                content: Text(authNotifier.message),
               );
             }
           },
