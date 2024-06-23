@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:pesse/themes/colors.dart';
 import 'package:pesse/themes/theme_extension.dart';
 
 class PesseTextField extends StatefulWidget {
   final String? labelText;
   final TextEditingController controller;
+  final MaskTextInputFormatter? inputFormatters;
   final String? hintText;
   final TextInputType keyboardType;
   final bool readOnly;
@@ -18,6 +20,7 @@ class PesseTextField extends StatefulWidget {
     super.key,
     this.labelText,
     required this.controller,
+    this.inputFormatters,
     this.hintText,
     this.keyboardType = TextInputType.text,
     this.readOnly = false,
@@ -59,6 +62,8 @@ class _PesseTextFieldState extends State<PesseTextField> {
           readOnly: widget.readOnly,
           onTap: widget.onTap,
           textAlign: TextAlign.left,
+          inputFormatters:
+              widget.inputFormatters != null ? [widget.inputFormatters!] : null,
           decoration: InputDecoration(
             fillColor: widget.backgroundColor,
             prefixIcon: widget.prefixIcon,

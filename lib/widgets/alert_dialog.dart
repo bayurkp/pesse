@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:pesse/themes/colors.dart';
 import 'package:pesse/themes/theme_extension.dart';
 
+enum PesseAlertDialogType { success, error, warning }
+
 class PesseAlertDialog extends StatelessWidget {
   final String title;
-  final String content;
+  final Widget content;
   final String? actionLabel;
   final Function? actionOnPressed;
+  final PesseAlertDialogType? type;
 
   const PesseAlertDialog({
     super.key,
@@ -16,6 +17,7 @@ class PesseAlertDialog extends StatelessWidget {
     required this.content,
     this.actionLabel,
     this.actionOnPressed,
+    this.type,
   });
 
   @override
@@ -23,10 +25,10 @@ class PesseAlertDialog extends StatelessWidget {
     return AlertDialog(
       title: Text(
         title,
-        style: context.title.copyWith(color: PesseColors.primary),
+        style: context.title,
       ),
       content: SingleChildScrollView(
-        child: Text(content),
+        child: content,
       ),
       actions: <Widget>[
         Builder(
@@ -41,6 +43,15 @@ class PesseAlertDialog extends StatelessWidget {
                     RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15.0),
                     ),
+                  ),
+                  backgroundColor: MaterialStatePropertyAll<Color>(
+                    type == PesseAlertDialogType.success
+                        ? PesseColors.success
+                        : type == PesseAlertDialogType.error
+                            ? PesseColors.error
+                            : type == PesseAlertDialogType.warning
+                                ? PesseColors.warning
+                                : PesseColors.primary,
                   ),
                 ),
                 child: Text(actionLabel!),
@@ -66,8 +77,14 @@ class PesseAlertDialog extends StatelessWidget {
                 borderRadius: BorderRadius.circular(15.0),
               ),
             ),
+            backgroundColor: const MaterialStatePropertyAll<Color>(
+              PesseColors.surface,
+            ),
           ),
-          child: const Text('Tutup'),
+          child: Text('Tutup',
+              style: context.label.copyWith(
+                color: PesseColors.onSurface,
+              )),
         ),
       ],
       shape: RoundedRectangleBorder(
