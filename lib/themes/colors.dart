@@ -12,7 +12,7 @@ class PesseColors {
   static const mikadoYellow = Color(0xFFFDC500);
   static const gold = Color(0xFFFFD500);
   static const red = Color(0xFFCC0000);
-  static const green = Color(0xFF16A34A);
+  static const green = Color(0xFF15803d);
   static const yellow = Color(0xFFFFFF00);
   static const transparent = Colors.transparent;
 
