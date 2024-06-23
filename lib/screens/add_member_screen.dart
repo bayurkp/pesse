@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:pesse/models/member_model.dart';
 import 'package:pesse/providers/member_provider.dart';
-import 'package:pesse/themes/colors.dart';
-import 'package:pesse/themes/theme_extension.dart';
 import 'package:pesse/utils/show_alert_dialog.dart';
-import 'package:pesse/widgets/bottom_navigation_bar.dart';
+import 'package:pesse/widgets/app_bar.dart';
 import 'package:pesse/widgets/member_form.dart';
-import 'package:pesse/widgets/text_button.dart';
-import 'package:pesse/widgets/text_field.dart';
 import 'package:provider/provider.dart';
 
 class AddMemberScreen extends StatefulWidget {
@@ -36,11 +31,12 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
 
         return memberNotifier.isPending
             ? const Center(child: CircularProgressIndicator())
-            : Scaffold(
-                appBar: AppBar(
-                  title: const Text('Anggota'),
+            : const Scaffold(
+                appBar: PesseAppBar(
+                  title: 'Tambah Anggota',
+                  // hideLogo: true,
                 ),
-                body: const SafeArea(
+                body: SafeArea(
                   child: SingleChildScrollView(
                     physics: BouncingScrollPhysics(),
                     child: Padding(
@@ -51,7 +47,6 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
                     ),
                   ),
                 ),
-                bottomNavigationBar: const PesseBottomNavigationBar(),
               );
       },
     );

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pesse/models/member_model.dart';
+import 'package:pesse/providers/bottom_navigation_provider.dart';
 import 'package:pesse/providers/member_provider.dart';
 import 'package:pesse/themes/colors.dart';
 import 'package:pesse/themes/theme_extension.dart';
 import 'package:pesse/utils/format_full_name.dart';
 import 'package:pesse/utils/show_alert_dialog.dart';
+import 'package:pesse/widgets/app_bar.dart';
 import 'package:pesse/widgets/bottom_navigation_bar.dart';
 import 'package:pesse/widgets/isactive_indicator.dart';
 import 'package:pesse/widgets/text_field.dart';
@@ -29,6 +30,9 @@ class _MembesrScreenState extends State<MembersScreen> {
   @override
   void initState() {
     super.initState();
+    Provider.of<BottomNavigationNotifier>(context, listen: false)
+        .setCurrentIndex(1);
+
     Future.delayed(Duration.zero, () {
       Provider.of<MemberNotifier>(context, listen: false)
           .getMembers()
@@ -88,28 +92,8 @@ class _MembesrScreenState extends State<MembersScreen> {
 
         filteredMembers = memberNotifier.members;
         return Scaffold(
-          appBar: AppBar(
-            backgroundColor: PesseColors.transparent,
-            surfaceTintColor: PesseColors.transparent,
-            elevation: 0,
-            title: Row(
-              children: [
-                SvgPicture.asset(
-                  'assets/images/min_logo.svg',
-                  semanticsLabel: 'Pesse\'s Logo',
-                  height: 25.0,
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                Text(
-                  'Anggota',
-                  style: context.titleMedium.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
+          appBar: PesseAppBar(
+            title: 'Anggota',
           ),
           body: memberNotifier.isPending
               ? const Center(child: CircularProgressIndicator())

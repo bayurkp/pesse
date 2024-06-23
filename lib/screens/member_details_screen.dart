@@ -29,20 +29,23 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
   @override
   void initState() {
     super.initState();
+    final memberId = int.parse(widget.memberId);
+
     Future.delayed(Duration.zero, () {
-      Provider.of<MemberNotifier>(context, listen: false).getMemberById(
-        memberId: int.parse(widget.memberId),
-      );
-      Provider.of<TransactionNotifer>(context, listen: false)
-          .getTransactionTypes();
-      Provider.of<TransactionNotifer>(context, listen: false).getMemberBalance(
-        memberId: int.parse(widget.memberId),
-      );
-      Provider.of<TransactionNotifer>(context, listen: false)
-          .getMemberTransactionsDetails(
-        memberId: int.parse(widget.memberId),
-      );
+      var memberNotifier = Provider.of<MemberNotifier>(context, listen: false);
+      memberNotifier.getMemberById(memberId: memberId);
+
+      var transactionNotifier =
+          Provider.of<TransactionNotifier>(context, listen: false);
+      transactionNotifier.getTransactionTypes();
+      transactionNotifier.getMemberBalance(memberId: memberId);
+      transactionNotifier.getMemberTransactionsDetails(memberId: memberId);
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   int _selectedTransactionType = 0;
@@ -51,20 +54,20 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
   Widget build(BuildContext context) {
     final transcationAmountController = TextEditingController();
 
-    return Consumer2<MemberNotifier, TransactionNotifer>(
-      builder: (context, memberNotifier, transactionNotifer, child) {
+    return Consumer2<MemberNotifier, TransactionNotifier>(
+      builder: (context, memberNotifier, transactionNotifier, child) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (memberNotifier.isSuccess == false ||
-              transactionNotifer.isSuccess == false) {
+              transactionNotifier.isSuccess == false) {
             showPesseAlertDialog(
               context,
               title: 'Gagal',
-              content: memberNotifier.message,
+              content: Text(memberNotifier.message),
             );
           }
         });
 
-        return memberNotifier.isPending || transactionNotifer.isPending
+        return transactionNotifier.isPending
             ? const Center(child: CircularProgressIndicator())
             : Scaffold(
                 backgroundColor: PesseColors.surface,
@@ -92,10 +95,10 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                           Padding(
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 20.0),
-                            child: PesseTextField(
-                              controller: transcationAmountController,
-                              hintText: 'Jumlah',
-                              backgroundColor: PesseColors.white,
+                            child: _transactionTypeDropdownMenu(
+                              transactionTypes:
+                                  transactionNotifier.transactionTypes,
+                              balance: transactionNotifier.balance,
                             ),
                           ),
                           const SizedBox(
@@ -104,9 +107,10 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                           Padding(
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 20.0),
-                            child: _transactionTypeDropdownMenu(
-                              transactionTypes:
-                                  transactionNotifer.transactionTypes,
+                            child: PesseTextField(
+                              controller: transcationAmountController,
+                              hintText: 'Jumlah',
+                              backgroundColor: PesseColors.white,
                             ),
                           ),
                           const SizedBox(
@@ -117,7 +121,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                                 const EdgeInsets.symmetric(horizontal: 20.0),
                             child: PesseTextButton(
                               onPressed: () {
-                                Provider.of<TransactionNotifer>(
+                                Provider.of<TransactionNotifier>(
                                   context,
                                   listen: false,
                                 ).addMemberTransaction(
@@ -166,13 +170,13 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                                       children: <Widget>[
                                         const SizedBox(height: 20.0),
                                         _balanceInformation(
-                                          balance: transactionNotifer.balance
+                                          balance: transactionNotifier.balance
                                               .toString(),
                                         ),
                                         const SizedBox(height: 20.0),
                                         _transactionList(
-                                          transactionNotifer.transactions,
-                                          transactionNotifer.transactionTypes,
+                                          transactionNotifier.transactions,
+                                          transactionNotifier.transactionTypes,
                                         ),
                                       ],
                                     ),
@@ -204,12 +208,19 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
         children: <Widget>[
           Column(
             children: <Widget>[
-              CircleAvatar(
-                radius: 40,
-                backgroundImage: NetworkImage(
-                  member.imageUrl!,
-                ),
-              ),
+              Builder(builder: (context) {
+                return member.imageUrl != null
+                    ? CircleAvatar(
+                        radius: 40,
+                        backgroundImage: NetworkImage(
+                          member.imageUrl!,
+                        ),
+                      )
+                    : const Icon(
+                        Icons.person,
+                        size: 40,
+                      );
+              }),
               const SizedBox(height: 10.0),
               Text(
                 'No. ${member.memberNumber.toString()}',
@@ -289,10 +300,11 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
           return _transactionListTile(
             id: transactions[index].id,
             transactionType:
-                transactionType[transactions[index].transactionType].type,
+                transactionType[transactions[index].transactionType - 1].type,
             transactionDate: transactions[index].date.split(' ')[0],
             amount: transactions[index].amount *
-                transactionType[transactions[index].transactionType].multiply,
+                transactionType[transactions[index].transactionType - 1]
+                    .multiplier,
           );
         },
       ),
@@ -327,8 +339,13 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
 
   Widget _transactionTypeDropdownMenu({
     required List<TransactionType> transactionTypes,
+    required double balance,
   }) {
-    List<DropdownMenuEntry<String>> dropdownMenuEntries = transactionTypes
+    final transactionTypes_arg = balance == 0.0
+        ? [transactionTypes.elementAt(0), transactionTypes.elementAt(1)]
+        : transactionTypes;
+
+    List<DropdownMenuEntry<String>> dropdownMenuEntries = transactionTypes_arg
         .map<DropdownMenuEntry<String>>(
           (e) => DropdownMenuEntry<String>(
             value: e.id.toString(),
@@ -336,6 +353,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
           ),
         )
         .toList();
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -365,7 +383,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
         hintText: 'Jenis Transaksi',
         expandedInsets: const EdgeInsets.all(0.0),
         dropdownMenuEntries: dropdownMenuEntries,
-        menuHeight: 100.0,
+        menuHeight: 200.0,
       ),
     );
   }
