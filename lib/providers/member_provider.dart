@@ -56,6 +56,8 @@ class MemberNotifier extends ChangeNotifier {
           )
           .toList();
 
+      _members.sort((a, b) => a.name.compareTo(b.name));
+
       _isPending = false;
       _isSuccess = true;
       _message = response.data['message'];

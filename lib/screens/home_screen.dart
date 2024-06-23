@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pesse/models/member_model.dart';
+import 'package:pesse/providers/bottom_navigation_provider.dart';
 import 'package:pesse/providers/member_provider.dart';
 import 'package:pesse/providers/transaction_provider.dart';
 import 'package:pesse/themes/colors.dart';
@@ -42,6 +43,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
+    Provider.of<BottomNavigationNotifier>(context, listen: false)
+        .setCurrentIndex(0);
+
     Future.delayed(Duration.zero, () {
       Provider.of<MemberNotifier>(context, listen: false).getMembers();
     }).then((_) {
@@ -225,7 +229,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             icon: Icons.percent,
                             label: 'Pengaturan Bunga',
                             onPressed: () {
-                              // context.goNamed('profile');
+                              context.goNamed('interest');
                             },
                           ),
                         ],
