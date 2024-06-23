@@ -22,6 +22,7 @@ class PesseBottomNavigationBar extends StatelessWidget {
             elevation: 0.0,
             showSelectedLabels: false,
             showUnselectedLabels: false,
+            type: BottomNavigationBarType.fixed,
             items: nav.navigationBarItems,
             onTap: (int index) {
               nav.navigate(context, index);

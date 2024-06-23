@@ -10,6 +10,7 @@ import 'package:pesse/screens/members_screen.dart';
 import 'package:pesse/screens/profile_screen.dart';
 import 'package:pesse/screens/register_screen.dart';
 import 'package:pesse/screens/test_screen.dart';
+import 'package:pesse/screens/interest_screen.dart';
 
 class PesseRouter {
   static GoRouter configureRouter(BuildContext context, AuthNotifier auth) {
@@ -61,6 +62,14 @@ class PesseRouter {
           pageBuilder: (context, state) => NoTransitionPage<void>(
             key: state.pageKey,
             child: const ProfileScreen(),
+          ),
+        ),
+        GoRoute(
+          name: 'interest',
+          path: '/interest',
+          pageBuilder: (context, state) => NoTransitionPage<void>(
+            key: state.pageKey,
+            child: const InterestScreen(),
           ),
         ),
         GoRoute(
