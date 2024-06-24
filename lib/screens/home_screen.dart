@@ -430,7 +430,7 @@ class _HomeScreenState extends State<HomeScreen> {
               _isMemberSelected.value = false;
             }
 
-            if (!_isMemberSelected.value) {
+            if (_isMemberSelected.value) {
               Provider.of<TransactionNotifier>(context, listen: false)
                   .addMemberTransaction(
                 memberId: _selectedMemberId,
