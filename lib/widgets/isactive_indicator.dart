@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pesse/themes/colors.dart';
+import 'package:pesse/themes/theme_extension.dart';
 
 class IsActiveIndicator extends StatelessWidget {
   final int isActive;
@@ -19,13 +20,15 @@ class IsActiveIndicator extends StatelessWidget {
           width: 10.0,
           height: 10.0,
           decoration: BoxDecoration(
-              color: isActive == 0 ? PesseColors.red : PesseColors.green,
-              shape: BoxShape.circle),
+            color: isActive == 0 ? PesseColors.red : PesseColors.green,
+            shape: BoxShape.circle,
+          ),
         ),
         Padding(
           padding: const EdgeInsets.only(left: 8.0, top: 2.0),
           child: Text(
             isActive == 1 ? 'Aktif' : 'Tidak aktif',
+            style: context.bodySmall,
           ),
         ),
       ],

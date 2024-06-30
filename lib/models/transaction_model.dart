@@ -1,13 +1,13 @@
 class Transaction {
   final int id;
-  final int transactionType;
+  final int transactionTypeId;
   final double amount;
   final String date;
 
   Transaction({
     required this.id,
     required this.date,
-    required this.transactionType,
+    required this.transactionTypeId,
     required this.amount,
   });
 
@@ -15,7 +15,7 @@ class Transaction {
     return Transaction(
       id: json['id'],
       date: json['trx_tanggal'],
-      transactionType: json['trx_id'],
+      transactionTypeId: json['trx_id'],
       amount: json['trx_nominal'],
     );
   }
@@ -24,7 +24,7 @@ class Transaction {
     return {
       'id': id,
       'trx_tanggal': date,
-      'trx_id': transactionType,
+      'trx_id': transactionTypeId,
       'trx_nominal': amount
     };
   }

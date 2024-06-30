@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pesse/providers/auth_provider.dart';
+import 'package:pesse/providers/bottom_navigation_provider.dart';
 import 'package:pesse/themes/colors.dart';
 import 'package:pesse/themes/theme_extension.dart';
+import 'package:pesse/utils/format_full_name.dart';
+import 'package:pesse/widgets/app_bar.dart';
 import 'package:pesse/widgets/bottom_navigation_bar.dart';
 import 'package:pesse/widgets/text_button.dart';
 import 'package:provider/provider.dart';
@@ -18,27 +19,11 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  List<BottomNavigationBarItem> bottomNavigationBarItems = [
-    const BottomNavigationBarItem(
-      icon: Icon(Icons.home),
-      label: 'Beranda',
-    ),
-    const BottomNavigationBarItem(
-      icon: Icon(Icons.group),
-      label: 'Anggota',
-    ),
-    const BottomNavigationBarItem(
-      icon: Icon(Icons.person),
-      label: 'Profil',
-    ),
-  ];
-
-  int selectedNavigationIndex = 0;
-
-  void onNavigationTapped(int index) {
-    setState(() {
-      selectedNavigationIndex = index;
-    });
+  @override
+  void initState() {
+    super.initState();
+    Provider.of<BottomNavigationNotifier>(context, listen: false)
+        .setCurrentIndex(3);
   }
 
   final user = GetStorage().read('user');
@@ -46,9 +31,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: PesseColors.surface,
-        title: const Text('Profil'),
+      appBar: const PesseAppBar(
+        title: 'Profil',
       ),
       body: SafeArea(
           child: Padding(
@@ -57,62 +41,60 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: <Widget>[
             Container(
               padding: const EdgeInsets.all(20.0),
-              decoration: const BoxDecoration(
-                color: PesseColors.surface,
+              width: double.infinity,
+              decoration: BoxDecoration(
                 shape: BoxShape.rectangle,
-                borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(15.0),
+                ),
+                border: Border.all(
+                  color: PesseColors.surface,
+                  width: 2.0,
+                ),
               ),
-              child: Row(
+              child: Column(
                 children: [
-                  SvgPicture.asset(
-                    'assets/images/pic_profile.svg',
-                    semanticsLabel: 'Pic Profile',
-                    height: 75.0,
+                  Container(
+                    width: 100,
+                    height: 100,
+                    clipBehavior: Clip.antiAlias,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                    ),
+                    child: Image.asset(
+                      'assets/images/default_person.jpg',
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                  const SizedBox(width: 20),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        user['name'],
-                        style: context.body,
-                      ),
-                      Text(user['email']),
-                    ],
+                  const SizedBox(height: 20.0),
+                  Text(
+                    formatFullName(user['name']),
+                    style: context.titleMedium.copyWith(
+                      color: PesseColors.onSurface,
+                    ),
+                  ),
+                  Text(
+                    user['email'],
+                    style: context.bodySmall.copyWith(
+                      color: PesseColors.onSurface,
+                    ),
                   )
                 ],
               ),
             ),
             const SizedBox(height: 20.0),
             PesseTextButton(
-              onPressed: () {},
-              label: 'Edit Profil',
-              color: PesseColors.error,
-            ),
-            const SizedBox(height: 10.0),
-            PesseTextButton(
               onPressed: () {
                 context.goNamed('login');
                 Provider.of<AuthNotifier>(context, listen: false).logout();
               },
               label: 'Keluar',
-              color: PesseColors.error,
+              backgroundColor: PesseColors.error,
             ),
           ],
         ),
       )),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          boxShadow: <BoxShadow>[
-            BoxShadow(
-              color: PesseColors.onSurface.withOpacity(0.1),
-              blurRadius: 10,
-              spreadRadius: 10,
-            ),
-          ],
-        ),
-        child: const PesseBottomNavigationBar(),
-      ),
+      bottomNavigationBar: const PesseBottomNavigationBar(),
     );
   }
 }

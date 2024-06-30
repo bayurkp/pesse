@@ -76,7 +76,7 @@ class _InterestScreenState extends State<InterestScreen> {
                               begin: 0.0,
                               end: transactionNotifier.interest,
                             ),
-                            duration: const Duration(milliseconds: 500),
+                            duration: const Duration(seconds: 1),
                             builder: (context, value, child) {
                               return Text(
                                 '${value.toStringAsFixed(2)}%',
@@ -155,7 +155,7 @@ class _InterestScreenState extends State<InterestScreen> {
                   ),
                 ),
                 const Spacer(),
-                const IsActiveIndicator(isActive: 0),
+                IsActiveIndicator(isActive: index == 0 ? 1 : 0),
               ],
             );
           },

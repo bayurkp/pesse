@@ -8,7 +8,7 @@ class PesseTextButtonTheme {
     style: ButtonStyle(
       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
         RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.0),
+          borderRadius: BorderRadius.circular(15.0),
         ),
       ),
       backgroundColor: MaterialStateProperty.all<Color>(PesseColors.primary),

@@ -9,6 +9,7 @@ class PesseAlertDialog extends StatelessWidget {
   final Widget content;
   final String? actionLabel;
   final Function? actionOnPressed;
+  final Function? additionalOnCloseAction;
   final PesseAlertDialogType? type;
 
   const PesseAlertDialog({
@@ -17,6 +18,7 @@ class PesseAlertDialog extends StatelessWidget {
     required this.content,
     this.actionLabel,
     this.actionOnPressed,
+    this.additionalOnCloseAction,
     this.type,
   });
 
@@ -37,7 +39,7 @@ class PesseAlertDialog extends StatelessWidget {
               return TextButton(
                 style: ButtonStyle(
                   padding: const MaterialStatePropertyAll<EdgeInsetsGeometry>(
-                    EdgeInsets.all(20.0),
+                    EdgeInsets.all(15.0),
                   ),
                   shape: MaterialStatePropertyAll<RoundedRectangleBorder>(
                     RoundedRectangleBorder(
@@ -54,7 +56,13 @@ class PesseAlertDialog extends StatelessWidget {
                                 : PesseColors.primary,
                   ),
                 ),
-                child: Text(actionLabel!),
+                child: Text(
+                  actionLabel!,
+                  style: context.label.copyWith(
+                    color: PesseColors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 onPressed: () {
                   actionOnPressed!();
                 },
@@ -67,10 +75,13 @@ class PesseAlertDialog extends StatelessWidget {
         TextButton(
           onPressed: () {
             Navigator.of(context).pop();
+            if (additionalOnCloseAction != null) {
+              additionalOnCloseAction!();
+            }
           },
           style: ButtonStyle(
             padding: const MaterialStatePropertyAll<EdgeInsetsGeometry>(
-              EdgeInsets.all(20.0),
+              EdgeInsets.all(15.0),
             ),
             shape: MaterialStatePropertyAll<RoundedRectangleBorder>(
               RoundedRectangleBorder(
@@ -84,11 +95,12 @@ class PesseAlertDialog extends StatelessWidget {
           child: Text('Tutup',
               style: context.label.copyWith(
                 color: PesseColors.onSurface,
+                fontWeight: FontWeight.w600,
               )),
         ),
       ],
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20.0),
+        borderRadius: BorderRadius.circular(15.0),
       ),
       surfaceTintColor: PesseColors.background,
     );

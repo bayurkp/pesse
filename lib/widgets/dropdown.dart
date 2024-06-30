@@ -33,13 +33,7 @@ class _PesseDropdownMenuState extends State<PesseDropdownMenu> {
       ),
       child: DropdownMenu(
         expandedInsets: const EdgeInsets.all(0.0),
-        dropdownMenuEntries: Provider.of<MemberNotifier>(context)
-            .members
-            .map((member) => DropdownMenuEntry<String>(
-                  value: member.id.toString(),
-                  label: member.name,
-                ))
-            .toList(),
+        dropdownMenuEntries: widget.dropdownMenuEntries,
         controller: widget.dropdownController,
         enableSearch: true,
         menuHeight: 150.0,

@@ -6,6 +6,7 @@ Future<void> showPesseAlertDialog(BuildContext context,
     required Widget content,
     String? actionLabel,
     Function? actionOnPressed,
+    Function? additionalOnCloseAction,
     PesseAlertDialogType? type}) async {
   return showDialog<void>(
       context: context,
@@ -16,6 +17,7 @@ Future<void> showPesseAlertDialog(BuildContext context,
           content: content,
           actionLabel: actionLabel,
           actionOnPressed: actionOnPressed,
+          additionalOnCloseAction: additionalOnCloseAction,
           type: type,
         );
       });

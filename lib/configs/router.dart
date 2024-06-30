@@ -113,7 +113,7 @@ class PesseRouter {
           path: '/test',
           pageBuilder: (context, state) => NoTransitionPage<void>(
             key: state.pageKey,
-            child: TestScreen(),
+            child: const TestScreen(),
           ),
         ),
       ],

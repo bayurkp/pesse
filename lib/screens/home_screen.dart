@@ -30,7 +30,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late final List<Map<String, String>> _images;
   late final List<Widget> _imageSliders;
-  late final List<Member> _members;
 
   int _currentCarouselIndex = 0;
   final CarouselController _carouselController = CarouselController();
@@ -48,8 +47,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     Future.delayed(Duration.zero, () {
       Provider.of<MemberNotifier>(context, listen: false).getMembers();
-    }).then((_) {
-      _members = Provider.of<MemberNotifier>(context, listen: false).members;
     });
 
     _images = [
@@ -379,28 +376,34 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 10.0),
-              PesseDropdownMenu(
-                dropdownMenuEntries: _members
-                    .map((member) => DropdownMenuEntry<String>(
-                          value: member.id.toString(),
-                          label: member.name,
-                        ))
-                    .toList(),
-                dropdownController: _membersDropdownController,
-                onSelected: (String? memberId) {
-                  setState(() {
-                    _selectedMemberId = int.parse(memberId!);
-                  });
+              Consumer<MemberNotifier>(
+                  builder: (context, memberNotifier, child) {
+                return memberNotifier.isPending
+                    ? const CircularProgressIndicator()
+                    : PesseDropdownMenu(
+                        dropdownMenuEntries:
+                            memberNotifier.members.map((member) {
+                          return DropdownMenuEntry<String>(
+                            value: member.id.toString(),
+                            label: member.name,
+                          );
+                        }).toList(),
+                        dropdownController: _membersDropdownController,
+                        onSelected: (String? memberId) {
+                          setState(() {
+                            _selectedMemberId = int.parse(memberId!);
+                          });
 
-                  if (_membersDropdownController.text == '' ||
-                      _selectedMemberId == 0) {
-                    _isMemberSelected.value = false;
-                  } else {
-                    _isMemberSelected.value = true;
-                  }
-                },
-                selectedEntry: _selectedMemberId.toString(),
-              ),
+                          if (_membersDropdownController.text == '' ||
+                              _selectedMemberId == 0) {
+                            _isMemberSelected.value = false;
+                          } else {
+                            _isMemberSelected.value = true;
+                          }
+                        },
+                        selectedEntry: _selectedMemberId.toString(),
+                      );
+              }),
               const SizedBox(height: 10.0),
               ValueListenableBuilder(
                 valueListenable: _isMemberSelected,

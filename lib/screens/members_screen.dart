@@ -63,6 +63,15 @@ class _MembesrScreenState extends State<MembersScreen> {
     super.dispose();
   }
 
+  @override
+  void didChangeDependencies() {
+    for (var image in members.map((member) => member.imageUrl).toList()) {
+      precacheImage(NetworkImage(image!), context);
+    }
+
+    super.didChangeDependencies();
+  }
+
   void groupMembersByAlphabet() {
     groupedMembers = {};
     for (var member in filteredMembers) {
@@ -92,7 +101,7 @@ class _MembesrScreenState extends State<MembersScreen> {
 
         filteredMembers = memberNotifier.members;
         return Scaffold(
-          appBar: PesseAppBar(
+          appBar: const PesseAppBar(
             title: 'Anggota',
           ),
           body: memberNotifier.isPending
@@ -206,7 +215,14 @@ class _MembesrScreenState extends State<MembersScreen> {
       child: ListTile(
         contentPadding: EdgeInsets.zero,
         leading: member.imageUrl == null
-            ? const Icon(Icons.person)
+            ? ClipOval(
+                child: Image.asset(
+                  'assets/images/default_person.jpg',
+                  height: 35,
+                  width: 35,
+                  fit: BoxFit.cover,
+                ),
+              )
             : ClipOval(
                 child: Image.network(
                   member.imageUrl!,

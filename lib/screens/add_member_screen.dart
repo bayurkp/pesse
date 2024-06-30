@@ -34,7 +34,6 @@ class _AddMemberScreenState extends State<AddMemberScreen> {
             : const Scaffold(
                 appBar: PesseAppBar(
                   title: 'Tambah Anggota',
-                  // hideLogo: true,
                 ),
                 body: SafeArea(
                   child: SingleChildScrollView(

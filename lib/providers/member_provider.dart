@@ -4,6 +4,17 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:pesse/models/member_model.dart';
 
+final defaultMember = Member(
+  id: 0,
+  memberNumber: 0,
+  name: '',
+  address: '',
+  birthDate: '1900-01-01',
+  phoneNumber: '',
+  imageUrl: '',
+  isActive: 0,
+);
+
 class MemberNotifier extends ChangeNotifier {
   final String _apiUrl = dotenv.env['API_URL']!;
   final _dio = Dio();
@@ -12,16 +23,7 @@ class MemberNotifier extends ChangeNotifier {
   String _message = '';
   bool _isSuccess = true;
   List<Member> _members = <Member>[];
-  Member _member = Member(
-    id: 0,
-    memberNumber: 0,
-    name: '',
-    address: '',
-    birthDate: '',
-    phoneNumber: '',
-    imageUrl: '',
-    isActive: 0,
-  );
+  Member _member = defaultMember;
 
   bool get isPending => _isPending;
   String get message => _message;
@@ -184,7 +186,7 @@ class MemberNotifier extends ChangeNotifier {
     }
   }
 
-  Future<void> removeMember(int memberId) async {
+  Future<void> removeMember({required int memberId}) async {
     _isPending = true;
     notifyListeners();
 

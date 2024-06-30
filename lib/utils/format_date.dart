@@ -1,29 +1,15 @@
-String formatDate(String date) {
-  try {
-    List<String> dateParts = date.split('-');
-    int year = int.parse(dateParts[0]);
-    int month = int.parse(dateParts[1]);
-    int day = int.parse(dateParts[2]);
+import 'package:intl/intl.dart';
 
-    List<String> monthNames = [
-      'Januari',
-      'Februari',
-      'Maret',
-      'April',
-      'Mei',
-      'Juni',
-      'Juli',
-      'Agustus',
-      'September',
-      'Oktober',
-      'November',
-      'Desember'
-    ];
+String formatDate(String date, {bool isDetailed = false}) {
+  final DateFormat formatter = isDetailed
+      ? DateFormat("yyyy-MM-dd HH:mm:ss", "id_ID")
+      : DateFormat("yyyy-MM-dd", "id_ID");
 
-    String monthName = monthNames[month - 1];
+  final parsedDate = formatter.parse(date);
 
-    return '$day $monthName $year';
-  } catch (e) {
-    return '0 Januari 0';
+  if (isDetailed) {
+    return DateFormat("EEEE, d MMMM yyyy HH:mm", "id_ID").format(parsedDate);
   }
+
+  return DateFormat("EEEE, d MMMM yyyy", "id_ID").format(parsedDate);
 }

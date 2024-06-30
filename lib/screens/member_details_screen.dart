@@ -1,17 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pesse/models/member_model.dart';
 import 'package:pesse/models/transaction_model.dart';
+import 'package:pesse/models/transaction_type_model.dart';
 import 'package:pesse/providers/member_provider.dart';
 import 'package:pesse/providers/transaction_provider.dart';
 import 'package:pesse/themes/colors.dart';
 import 'package:pesse/themes/theme_extension.dart';
-import 'package:pesse/utils/format_currency.dart';
+import 'package:pesse/utils/format_currency_idr.dart';
 import 'package:pesse/utils/format_date.dart';
+import 'package:pesse/utils/format_full_name.dart';
 import 'package:pesse/utils/show_alert_dialog.dart';
+import 'package:pesse/widgets/alert_dialog.dart';
+import 'package:pesse/widgets/app_bar.dart';
 import 'package:pesse/widgets/isactive_indicator.dart';
 import 'package:pesse/widgets/text_button.dart';
 import 'package:pesse/widgets/text_field.dart';
 import 'package:provider/provider.dart';
+import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 
 class MemberDetailsScreen extends StatefulWidget {
   final String memberId;
@@ -26,21 +33,43 @@ class MemberDetailsScreen extends StatefulWidget {
 }
 
 class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
+  final _transactionAmountController = TextEditingController();
+  final _transactionAmountFormatter = CurrencyTextInputFormatter.currency(
+    locale: 'id_ID',
+    symbol: 'Rp',
+    decimalDigits: 0,
+  );
+  bool _isTransactionAmountEmpty = true;
+  bool _isCorrectionTransaction = false;
+
   @override
   void initState() {
     super.initState();
-    final memberId = int.parse(widget.memberId);
-
-    Future.delayed(Duration.zero, () {
-      var memberNotifier = Provider.of<MemberNotifier>(context, listen: false);
-      memberNotifier.getMemberById(memberId: memberId);
-
-      var transactionNotifier =
-          Provider.of<TransactionNotifier>(context, listen: false);
-      transactionNotifier.getTransactionTypes();
-      transactionNotifier.getMemberBalance(memberId: memberId);
-      transactionNotifier.getMemberTransactionsDetails(memberId: memberId);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeState();
     });
+  }
+
+  void _onTextChange() {
+    setState(() {
+      _isTransactionAmountEmpty = _transactionAmountController.text.isEmpty;
+    });
+  }
+
+  Future<void> _initializeState() async {
+    final memberId = int.parse(widget.memberId);
+    var memberNotifier = Provider.of<MemberNotifier>(context, listen: false);
+    var transactionNotifier =
+        Provider.of<TransactionNotifier>(context, listen: false);
+
+    await Future.wait([
+      memberNotifier.getMemberById(memberId: memberId),
+      transactionNotifier.getTransactionTypes(),
+      transactionNotifier.getMemberBalance(memberId: memberId),
+      transactionNotifier.getMemberTransactions(memberId: memberId),
+    ]);
+
+    _transactionAmountController.addListener(_onTextChange);
   }
 
   @override
@@ -48,342 +77,465 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
     super.dispose();
   }
 
-  int _selectedTransactionType = 0;
-
   @override
   Widget build(BuildContext context) {
-    final transcationAmountController = TextEditingController();
+    return Scaffold(
+      appBar: const PesseAppBar(
+        title: 'Anggota',
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                _memberProfile(),
+                const SizedBox(height: 20.0),
+                _memberActions(),
+                const SizedBox(height: 20.0),
+                _balanceInformation(),
+                const SizedBox(height: 20.0),
+                _transactionForm(
+                    member: Provider.of<MemberNotifier>(context, listen: false)
+                        .member),
+                const SizedBox(height: 10.0),
+                const Divider(
+                  color: PesseColors.surface,
+                  thickness: 2.0,
+                ),
+                const SizedBox(height: 10.0),
+                _transactionHistory(),
+                const SizedBox(height: 80.0),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
-    return Consumer2<MemberNotifier, TransactionNotifier>(
-      builder: (context, memberNotifier, transactionNotifier, child) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (memberNotifier.isSuccess == false ||
-              transactionNotifier.isSuccess == false) {
+  Widget _memberProfile() {
+    return Consumer<MemberNotifier>(
+      builder: (context, memberNotifier, child) {
+        if (memberNotifier.isSuccess == false) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
             showPesseAlertDialog(
               context,
               title: 'Gagal',
               content: Text(memberNotifier.message),
+              additionalOnCloseAction: () {
+                context.go('members.index');
+              },
             );
-          }
-        });
+          });
+        }
 
-        return transactionNotifier.isPending
+        return memberNotifier.isPending
             ? const Center(child: CircularProgressIndicator())
-            : Scaffold(
-                backgroundColor: PesseColors.surface,
-                appBar: AppBar(
-                  title: Center(
-                    child: Text(memberNotifier.member.name),
-                  ),
-                ),
-                body: SafeArea(
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: <Widget>[
-                      Column(
-                        children: <Widget>[
-                          Container(
-                            padding: const EdgeInsets.all(20.0),
-                            width: double.infinity,
-                            decoration: const BoxDecoration(
-                              color: PesseColors.surface,
-                              shape: BoxShape.rectangle,
-                            ),
-                            child: _memberInformation(memberNotifier.member),
-                          ),
-                          const SizedBox(height: 20.0),
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 20.0),
-                            child: _transactionTypeDropdownMenu(
-                              transactionTypes:
-                                  transactionNotifier.transactionTypes,
-                              balance: transactionNotifier.balance,
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 10.0,
-                          ),
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 20.0),
-                            child: PesseTextField(
-                              controller: transcationAmountController,
-                              hintText: 'Jumlah',
-                              backgroundColor: PesseColors.white,
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 20.0,
-                          ),
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 20.0),
-                            child: PesseTextButton(
-                              onPressed: () {
-                                Provider.of<TransactionNotifier>(
-                                  context,
-                                  listen: false,
-                                ).addMemberTransaction(
-                                  memberId: int.parse(widget.memberId),
-                                  transactionTypeId: _selectedTransactionType,
-                                  transactionAmount: double.parse(
-                                      transcationAmountController.text),
+            : Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(20.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15.0),
+                      border:
+                          Border.all(color: PesseColors.surface, width: 2.0),
+                    ),
+                    child: Row(
+                      children: <Widget>[
+                        Column(
+                          children: <Widget>[
+                            Builder(
+                              builder: (context) {
+                                if (memberNotifier.member.imageUrl == null) {
+                                  return ClipOval(
+                                    child: Image.asset(
+                                      'assets/images/default_person.jpg',
+                                      height: 75,
+                                      width: 75,
+                                      fit: BoxFit.cover,
+                                      cacheWidth: 75,
+                                      cacheHeight: 75,
+                                    ),
+                                  );
+                                }
+
+                                return ClipOval(
+                                  child: Image.network(
+                                    memberNotifier.member.imageUrl!,
+                                    height: 75,
+                                    width: 75,
+                                    fit: BoxFit.cover,
+                                    cacheWidth: 75,
+                                    cacheHeight: 75,
+                                    loadingBuilder:
+                                        (context, child, loadingProgress) {
+                                      if (loadingProgress == null) return child;
+                                      return const CircularProgressIndicator();
+                                    },
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Image.asset(
+                                        'assets/images/default_person.jpg',
+                                        height: 75,
+                                        width: 75,
+                                        fit: BoxFit.cover,
+                                        cacheWidth: 75,
+                                        cacheHeight: 75,
+                                      );
+                                    },
+                                  ),
                                 );
                               },
-                              label: 'Tambah Transaksi',
                             ),
+                            const SizedBox(height: 10.0),
+                            Text(
+                              'No. ${memberNotifier.member.memberNumber.toString()}',
+                              style: context.bodySmall,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(width: 20),
+                        Flexible(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                formatFullName(memberNotifier.member.name),
+                                style: context.titleMedium,
+                              ),
+                              Text(formatDate(memberNotifier.member.birthDate),
+                                  style: context.bodySmall),
+                              Text(memberNotifier.member.phoneNumber,
+                                  style: context.bodySmall),
+                              Text(memberNotifier.member.address,
+                                  style: context.bodySmall),
+                              IsActiveIndicator(
+                                isActive: memberNotifier.member.isActive,
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      DraggableScrollableSheet(
-                        initialChildSize: 0.18,
-                        minChildSize: 0.18,
-                        maxChildSize: 0.8,
-                        builder: (context, scrollController) {
-                          return Container(
-                            decoration: const BoxDecoration(
-                              color: PesseColors.white,
-                              borderRadius: BorderRadius.vertical(
-                                top: Radius.circular(40.0),
-                              ),
-                            ),
-                            child: SingleChildScrollView(
-                              controller: scrollController,
-                              child: Column(
-                                children: <Widget>[
-                                  const SizedBox(height: 10.0),
-                                  Container(
-                                    height: 6.0,
-                                    width: 60.0,
-                                    decoration: const BoxDecoration(
-                                      color: PesseColors.gray500,
-                                      shape: BoxShape.rectangle,
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(40.0)),
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 20.0),
-                                    child: Column(
-                                      children: <Widget>[
-                                        const SizedBox(height: 20.0),
-                                        _balanceInformation(
-                                          balance: transactionNotifier.balance
-                                              .toString(),
-                                        ),
-                                        const SizedBox(height: 20.0),
-                                        _transactionList(
-                                          transactionNotifier.transactions,
-                                          transactionNotifier.transactionTypes,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
+                ],
               );
       },
     );
   }
 
-  Widget _memberInformation(Member member) {
-    return Container(
-      padding: const EdgeInsets.all(20.0),
-      decoration: BoxDecoration(
-        color: PesseColors.white,
-        shape: BoxShape.rectangle,
-        borderRadius: BorderRadius.circular(20.0),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Column(
+  Widget _memberActions() {
+    Member member = Provider.of<MemberNotifier>(context).member;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: <Widget>[
+        Expanded(
+          child: PesseTextButton(
+            onPressed: () {
+              context.pushNamed(
+                'member.edit',
+                pathParameters: {'memberId': widget.memberId},
+              );
+            },
+            label: 'Ubah',
+            icon: Icons.edit,
+          ),
+        ),
+        const SizedBox(width: 10.0),
+        Expanded(
+          child: PesseTextButton(
+            onPressed: () {
+              showPesseAlertDialog(
+                context,
+                title: 'Hapus',
+                type: PesseAlertDialogType.error,
+                content: Text('Apakah Anda yakin menghapus ${member.name}?'),
+                actionLabel: 'Hapus',
+                actionOnPressed: () {
+                  Provider.of<MemberNotifier>(context, listen: false)
+                      .removeMember(
+                    memberId: int.parse(widget.memberId),
+                  );
+
+                  context.goNamed('members.index');
+                },
+              );
+            },
+            label: 'Hapus',
+            icon: Icons.delete,
+            backgroundColor: PesseColors.error,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _balanceInformation() {
+    return Consumer<TransactionNotifier>(
+      builder: (context, transactionNotifier, child) {
+        return Container(
+          padding: const EdgeInsets.all(20.0),
+          decoration: BoxDecoration(
+            color: PesseColors.background,
+            borderRadius: BorderRadius.circular(15.0),
+            border: Border.all(color: PesseColors.surface, width: 2.0),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Builder(builder: (context) {
-                return member.imageUrl != null
-                    ? CircleAvatar(
-                        radius: 40,
-                        backgroundImage: NetworkImage(
-                          member.imageUrl!,
+              Text('Saldo', style: context.titleMedium),
+              Row(
+                children: <Widget>[
+                  Text(
+                    'Rp',
+                    style: context.title.copyWith(
+                      color: PesseColors.onSurface,
+                    ),
+                  ),
+                  const Spacer(),
+                  TweenAnimationBuilder<double>(
+                    tween: Tween<double>(
+                      begin: 0.0,
+                      end: transactionNotifier.balance,
+                    ),
+                    duration: const Duration(seconds: 1),
+                    builder: (context, amount, child) {
+                      return Text(
+                        formatCurrencyIdr(
+                          amount: amount.toString(),
+                          decimalDigit: 2,
                         ),
-                      )
-                    : const Icon(
-                        Icons.person,
-                        size: 40,
+                        style: context.title.copyWith(
+                          color: amount <= 0
+                              ? PesseColors.error
+                              : PesseColors.green,
+                        ),
                       );
-              }),
-              const SizedBox(height: 10.0),
-              Text(
-                'No. ${member.memberNumber.toString()}',
-                style: context.bodySmall,
-              ),
+                    },
+                  ),
+                ],
+              )
             ],
           ),
-          const SizedBox(width: 20),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 5.0),
-              Text(
-                member.name,
-                style: context.body.copyWith(
-                  fontWeight: FontWeight.bold,
+        );
+      },
+    );
+  }
+
+  Widget _transactionForm({required Member member}) {
+    return Consumer<TransactionNotifier>(
+        builder: (context, transactionNotifier, child) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text('Transaksi', style: context.titleMedium),
+          const SizedBox(height: 10.0),
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: PesseTextField(
+                  hintText: 'Jumlah',
+                  controller: _transactionAmountController,
+                  inputFormatters: _transactionAmountFormatter,
+                  keyboardType: TextInputType.number,
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 15.0,
+                    horizontal: 20.0,
+                  ),
                 ),
               ),
-              Text(member.address),
-              Text(formatDate(member.birthDate)),
-              Text(member.phoneNumber),
-              IsActiveIndicator(isActive: member.isActive),
+              const SizedBox(width: 10.0),
+              _transactionButton(
+                member: member,
+                transactionNotifier: transactionNotifier,
+                toIncrease: true,
+              ),
+              const SizedBox(width: 10.0),
+              _transactionButton(
+                member: member,
+                transactionNotifier: transactionNotifier,
+                toIncrease: false,
+              ),
             ],
-          )
-        ],
-      ),
-    );
-  }
-
-  Widget _balanceInformation({required String balance}) {
-    return Container(
-      padding: const EdgeInsets.all(20.0),
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: PesseColors.surface,
-        shape: BoxShape.rectangle,
-        borderRadius: BorderRadius.circular(20.0),
-      ),
-      child: Row(
-        children: <Widget>[
-          const Icon(
-            Icons.account_balance_wallet_rounded,
-            color: PesseColors.gray500,
           ),
-          const SizedBox(width: 5.0),
-          Text(
-            'Saldo',
-            style: context.body.copyWith(
-              fontWeight: FontWeight.w600,
-              color: PesseColors.gray500,
-            ),
-          ),
-          const Spacer(),
-          Text(
-            formatCurrency(balance),
-            style: context.body.copyWith(
-              fontWeight: FontWeight.bold,
-              color: balance == '0' ? PesseColors.red : PesseColors.green,
-            ),
+          Row(
+            children: [
+              Checkbox(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
+                value: _isCorrectionTransaction,
+                onChanged: (value) {
+                  setState(() {
+                    _isCorrectionTransaction = value!;
+                  });
+                },
+              ),
+              Text('Koreksi Transaksi', style: context.label),
+            ],
           ),
         ],
-      ),
-    );
+      );
+    });
   }
 
-  Widget _transactionList(
-    List<Transaction> transactions,
-    List<TransactionType> transactionType,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(20.0),
-      child: ListView.builder(
-        shrinkWrap: true,
-        itemCount: transactions.length,
-        itemBuilder: (context, index) {
-          return _transactionListTile(
-            id: transactions[index].id,
-            transactionType:
-                transactionType[transactions[index].transactionType - 1].type,
-            transactionDate: transactions[index].date.split(' ')[0],
-            amount: transactions[index].amount *
-                transactionType[transactions[index].transactionType - 1]
-                    .multiplier,
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _transactionListTile({
-    required int id,
-    required String transactionType,
-    required String transactionDate,
-    required double amount,
+  Widget _transactionButton({
+    required Member member,
+    required TransactionNotifier transactionNotifier,
+    required bool toIncrease,
   }) {
+    late bool isDisabled;
+    late int transactionTypeId;
+
+    // Check if the transaction amount is empty
+    if (_isTransactionAmountEmpty) {
+      isDisabled = true;
+    } else {
+      isDisabled = false;
+    }
+
+    // Check if the member balance is enough to withdraw
+    if (!toIncrease && transactionNotifier.balance <= 0) {
+      isDisabled = true;
+    }
+
+    // Check if the member does not have any transaction yet
+    // member cannot withdraw, but can deposit
+    if (transactionNotifier.transactions.isEmpty && !toIncrease) {
+      isDisabled = true;
+    }
+
+    if (transactionNotifier.transactions.isEmpty) {
+      transactionTypeId = 1;
+    } else {
+      if (toIncrease) {
+        if (_isCorrectionTransaction) {
+          transactionTypeId = 5;
+        } else {
+          transactionTypeId = 2;
+        }
+      } else {
+        if (_isCorrectionTransaction) {
+          transactionTypeId = 6;
+        } else {
+          transactionTypeId = 3;
+        }
+      }
+    }
+
+    return IconButton.filled(
+      padding: const EdgeInsets.all(15.0),
+      color: isDisabled
+          ? PesseColors.onSurface
+          : (toIncrease ? PesseColors.onSuccess : PesseColors.onError),
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all<Color>(
+          isDisabled
+              ? PesseColors.surface
+              : (toIncrease ? PesseColors.success : PesseColors.error),
+        ),
+        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+          ),
+        ),
+      ),
+      onPressed: isDisabled
+          ? null
+          : () {
+              showPesseAlertDialog(context,
+                  title: 'Transaksi',
+                  content: Text(
+                    'Apakah Anda yakin ${toIncrease ? 'menyimpan' : 'menarik'} '
+                    'sejumlah Rp${formatCurrencyIdr(amount: _transactionAmountFormatter.getDouble().toString())} '
+                    'untuk ${member.name}?',
+                  ),
+                  actionLabel: toIncrease ? 'Simpan' : 'Tarik',
+                  actionOnPressed: () {
+                Provider.of<TransactionNotifier>(context, listen: false)
+                    .addMemberTransaction(
+                  memberId: member.id,
+                  transactionAmount: _transactionAmountFormatter.getDouble(),
+                  transactionTypeId: transactionTypeId,
+                );
+
+                _transactionAmountController.clear();
+                Navigator.of(context).pop();
+              });
+            },
+      icon: Icon(toIncrease ? Icons.add : Icons.remove),
+    );
+  }
+
+  Widget _transactionHistory() {
+    return Consumer<TransactionNotifier>(
+      builder: (context, transactionNotifier, child) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text('Riwayat Transaksi', style: context.titleMedium),
+            const SizedBox(height: 10.0),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: transactionNotifier.transactions.length,
+              itemBuilder: (context, index) {
+                Transaction transaction =
+                    transactionNotifier.transactions[index];
+                return _transactionHistoryItem(transaction: transaction);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _transactionHistoryItem({required Transaction transaction}) {
+    TransactionType transactionType =
+        Provider.of<TransactionNotifier>(context, listen: false)
+            .transactionTypes
+            .firstWhere((type) => type.id == transaction.transactionTypeId);
+
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      title: Text('TRX$id'),
+      leading: Icon(
+        transactionType.multiplier < 0
+            ? Icons.trending_down
+            : Icons.trending_up,
+        color: transactionType.multiplier < 0
+            ? PesseColors.red
+            : PesseColors.green,
+        size: 20.0,
+      ),
+      title: Text(
+        'TRX${transaction.id.toString()}',
+        style: context.titleMedium,
+      ),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(transactionType),
-          Text(formatDate(transactionDate.split(' ')[0])),
+          Text(
+            transactionType.type,
+            style: context.bodySmall,
+          ),
+          Text(
+            formatDate(transaction.date, isDetailed: true),
+            style: context.bodySmall,
+          ),
         ],
       ),
       trailing: Text(
-        formatCurrency(amount.toString()),
-        style: context.body.copyWith(
+        'Rp${formatCurrencyIdr(amount: transaction.amount.toString())}',
+        style: context.titleMedium.copyWith(
           fontWeight: FontWeight.bold,
-          color: amount < 0 ? PesseColors.red : PesseColors.green,
+          color: transaction.amount * transactionType.multiplier < 0
+              ? PesseColors.red
+              : PesseColors.green,
         ),
-      ),
-    );
-  }
-
-  Widget _transactionTypeDropdownMenu({
-    required List<TransactionType> transactionTypes,
-    required double balance,
-  }) {
-    final transactionTypes_arg = balance == 0.0
-        ? [transactionTypes.elementAt(0), transactionTypes.elementAt(1)]
-        : transactionTypes;
-
-    List<DropdownMenuEntry<String>> dropdownMenuEntries = transactionTypes_arg
-        .map<DropdownMenuEntry<String>>(
-          (e) => DropdownMenuEntry<String>(
-            value: e.id.toString(),
-            label: e.type,
-          ),
-        )
-        .toList();
-
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: PesseColors.white,
-        shape: BoxShape.rectangle,
-        borderRadius: BorderRadius.circular(15.0),
-      ),
-      child: DropdownMenu(
-        onSelected: (value) {
-          setState(() {
-            _selectedTransactionType = int.parse(value!);
-          });
-        },
-        menuStyle: MenuStyle(
-          backgroundColor: MaterialStateProperty.all<Color>(PesseColors.white),
-          shape: MaterialStateProperty.all<OutlinedBorder>(
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15.0),
-            ),
-          ),
-          padding: MaterialStateProperty.all<EdgeInsets>(
-            const EdgeInsets.only(top: 20),
-          ),
-          elevation: MaterialStateProperty.all<double>(0.0),
-        ),
-        enableFilter: true,
-        hintText: 'Jenis Transaksi',
-        expandedInsets: const EdgeInsets.all(0.0),
-        dropdownMenuEntries: dropdownMenuEntries,
-        menuHeight: 200.0,
       ),
     );
   }

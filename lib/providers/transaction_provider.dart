@@ -3,18 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:pesse/models/transaction_model.dart';
+import 'package:pesse/models/transaction_type_model.dart';
 
-class TransactionType {
-  final int id;
-  final String type;
-  final int multiplier;
-
-  TransactionType({
-    required this.id,
-    required this.type,
-    required this.multiplier,
-  });
-}
+final List<TransactionType> defaultTransactionTypes = [
+  TransactionType(id: 1, type: 'Saldo Awal', multiplier: 1),
+  TransactionType(id: 2, type: 'Simpanan', multiplier: 1),
+  TransactionType(id: 3, type: 'Penarikan', multiplier: -1),
+  TransactionType(id: 4, type: 'Bunga Simpanan', multiplier: 1),
+  TransactionType(id: 5, type: 'Koreksi Penambahan', multiplier: 1),
+  TransactionType(id: 6, type: 'Koreksi Pengurangan', multiplier: -1),
+];
 
 class TransactionNotifier extends ChangeNotifier {
   final String _apiUrl = dotenv.env['API_URL']!;
@@ -27,7 +25,7 @@ class TransactionNotifier extends ChangeNotifier {
   double _balance = 0;
   double _interest = 0;
   List<double> _interestHistory = <double>[];
-  List<TransactionType> _transactionTypes = <TransactionType>[];
+  List<TransactionType> _transactionTypes = defaultTransactionTypes;
 
   bool get isPending => _isPending;
   String get message => _message;
@@ -38,7 +36,7 @@ class TransactionNotifier extends ChangeNotifier {
   List<double> get interestHistory => _interestHistory;
   List<TransactionType> get transactionTypes => _transactionTypes;
 
-  Future<void> getMemberTransactionsDetails({required int memberId}) async {
+  Future<void> getMemberTransactions({required int memberId}) async {
     _isPending = true;
     notifyListeners();
 
@@ -55,7 +53,7 @@ class TransactionNotifier extends ChangeNotifier {
             (e) => Transaction(
               id: e['id'],
               date: e['trx_tanggal'],
-              transactionType: e['trx_id'],
+              transactionTypeId: e['trx_id'],
               amount: double.parse(e['trx_nominal'].toString()),
             ),
           )
@@ -84,8 +82,6 @@ class TransactionNotifier extends ChangeNotifier {
           headers: {'Authorization': 'Bearer ${GetStorage().read('token')}'},
         ),
       );
-
-      print(response);
 
       _balance = double.parse(response.data['data']['saldo'].toString());
       _isPending = false;
@@ -136,18 +132,19 @@ class TransactionNotifier extends ChangeNotifier {
             ));
       }
 
-      print(response);
-
       final newTransaction = Transaction(
         id: response.data['data']['tabungan']['id'],
         date: response.data['data']['tabungan']['trx_tanggal'],
-        transactionType: response.data['data']['tabungan']['trx_id'],
+        transactionTypeId: response.data['data']['tabungan']['trx_id'],
         amount: double.parse(
             response.data['data']['tabungan']['trx_nominal'].toString()),
       );
       _transactions.add(newTransaction);
 
-      final multiplier = transactionTypes[transactionTypeId].multiplier;
+      final multiplier = transactionTypes
+          .firstWhere(
+              (transactionType) => transactionType.id == transactionTypeId)
+          .multiplier;
       _balance += transactionAmount * multiplier;
 
       _isPending = false;
@@ -174,7 +171,6 @@ class TransactionNotifier extends ChangeNotifier {
           headers: {'Authorization': 'Bearer ${GetStorage().read('token')}'},
         ),
       );
-      print(response);
 
       _transactionTypes = (response.data['data']['jenistransaksi'] as List)
           .map(
@@ -190,7 +186,6 @@ class TransactionNotifier extends ChangeNotifier {
       _message = response.data['message'];
       notifyListeners();
     } on DioException catch (e) {
-      print(e.response?.data);
       _isPending = false;
       _isSuccess = false;
       _message = e.response!.data['message'].toString();
@@ -209,7 +204,6 @@ class TransactionNotifier extends ChangeNotifier {
           headers: {'Authorization': 'Bearer ${GetStorage().read('token')}'},
         ),
       );
-      print(response);
       _interest = response.data['data']['activebunga']['persen'];
 
       var interestHistory = List<Map<String, dynamic>>.from(
@@ -219,7 +213,6 @@ class TransactionNotifier extends ChangeNotifier {
       _interestHistory =
           interestHistory.map<double>((e) => e['persen'].toDouble()).toList();
 
-      print(_interestHistory);
       _isPending = false;
       _isSuccess = true;
       _message = response.data['message'];
@@ -230,8 +223,6 @@ class TransactionNotifier extends ChangeNotifier {
       _isSuccess = false;
       _message = e.response!.data['message'].toString();
       notifyListeners();
-    } catch (e) {
-      print(e);
     }
   }
 

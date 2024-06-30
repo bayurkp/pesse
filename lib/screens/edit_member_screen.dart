@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pesse/providers/member_provider.dart';
 import 'package:pesse/utils/show_alert_dialog.dart';
+import 'package:pesse/widgets/app_bar.dart';
 import 'package:pesse/widgets/bottom_navigation_bar.dart';
 import 'package:pesse/widgets/member_form.dart';
 import 'package:provider/provider.dart';
@@ -45,8 +46,8 @@ class _EditMemberScreenState extends State<EditMemberScreen> {
       return memberNotifier.isPending
           ? const Center(child: CircularProgressIndicator())
           : Scaffold(
-              appBar: AppBar(
-                title: const Text('Anggota'),
+              appBar: const PesseAppBar(
+                title: 'Tambah Anggota',
               ),
               body: SafeArea(
                 child: SingleChildScrollView(
