@@ -7,6 +7,7 @@ class PesseTextField extends StatefulWidget {
   final String? labelText;
   final TextEditingController controller;
   final TextInputFormatter? inputFormatters;
+  final String? Function(String?)? validator;
   final String? hintText;
   final TextInputType keyboardType;
   final bool readOnly;
@@ -21,6 +22,7 @@ class PesseTextField extends StatefulWidget {
     this.labelText,
     required this.controller,
     this.inputFormatters,
+    this.validator,
     this.hintText,
     this.keyboardType = TextInputType.text,
     this.readOnly = false,
@@ -56,7 +58,8 @@ class _PesseTextFieldState extends State<PesseTextField> {
         SizedBox(
           height: widget.labelText == null ? 0.0 : 4.0,
         ),
-        TextField(
+        TextFormField(
+          validator: widget.validator,
           keyboardType: widget.keyboardType,
           controller: widget.controller,
           readOnly: widget.readOnly,

@@ -61,6 +61,13 @@ class Area {
 
   @override
   String toString() {
+    if (province.code == '0' ||
+        regency.code == '0' ||
+        district.code == '0' ||
+        village.code == '0') {
+      return '';
+    }
+
     String area =
         '${village.name}, ${district.name}, ${regency.name}, ${province.name} ${getCode()}';
     return formatSentenceCase(area);

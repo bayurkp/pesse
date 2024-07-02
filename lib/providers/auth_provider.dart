@@ -63,13 +63,14 @@ class AuthNotifier with ChangeNotifier {
           'password': password,
         },
       );
-      GetStorage().write('token', response.data['data']['token']);
-      GetStorage().write('user', response.data['data']['user']);
+
+      await login(email: email, password: password);
 
       _isPending = false;
       _isLoggedIn = true;
       _isSuccess = true;
       _message = response.data['message'];
+      print(response);
       notifyListeners();
     } on DioException catch (e) {
       print(e.response!.data);

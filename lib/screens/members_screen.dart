@@ -13,14 +13,14 @@ import 'package:pesse/widgets/isactive_indicator.dart';
 import 'package:pesse/widgets/text_field.dart';
 import 'package:provider/provider.dart';
 
-class MembersScreen extends StatefulWidget {
-  const MembersScreen({super.key});
+class MemberScreen extends StatefulWidget {
+  const MemberScreen({super.key});
 
   @override
-  State<MembersScreen> createState() => _MembesrScreenState();
+  State<MemberScreen> createState() => _MemberScreenState();
 }
 
-class _MembesrScreenState extends State<MembersScreen> {
+class _MemberScreenState extends State<MemberScreen> {
   TextEditingController searchController = TextEditingController();
 
   List<Member> members = [];
@@ -32,29 +32,39 @@ class _MembesrScreenState extends State<MembersScreen> {
     super.initState();
     Provider.of<BottomNavigationNotifier>(context, listen: false)
         .setCurrentIndex(1);
-
-    Future.delayed(Duration.zero, () {
-      Provider.of<MemberNotifier>(context, listen: false)
-          .getMembers()
-          .then((_) {
-        setState(() {
-          members = Provider.of<MemberNotifier>(context, listen: false).members;
-          filteredMembers = members;
-          groupMembersByAlphabet();
-        });
-      });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _initData();
+      }
     });
-
     searchController.addListener(() {
-      setState(() {
-        filteredMembers = members.where((member) {
-          return member.name
-              .toLowerCase()
-              .contains(searchController.text.toLowerCase());
-        }).toList();
-        groupMembersByAlphabet();
-      });
+      if (mounted) {
+        setState(() {
+          filteredMembers = members.where((member) {
+            return member.name
+                .toLowerCase()
+                .contains(searchController.text.toLowerCase());
+          }).toList();
+          _groupMembersByAlphabet();
+        });
+      }
     });
+  }
+
+  Future<void> _initData() async {
+    final memberNotifier = Provider.of<MemberNotifier>(context, listen: false);
+    try {
+      await memberNotifier.getMembers();
+      if (mounted) {
+        setState(() {
+          members = memberNotifier.members;
+          filteredMembers = members;
+          _groupMembersByAlphabet();
+        });
+      }
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override
@@ -72,15 +82,17 @@ class _MembesrScreenState extends State<MembersScreen> {
     super.didChangeDependencies();
   }
 
-  void groupMembersByAlphabet() {
-    groupedMembers = {};
-    for (var member in filteredMembers) {
-      if (groupedMembers[member.name[0].toUpperCase()] == null) {
-        groupedMembers[member.name[0].toUpperCase()] = <Member>[];
+  void _groupMembersByAlphabet() {
+    setState(() {
+      groupedMembers = {};
+      for (var member in filteredMembers) {
+        String firstLetter = member.name[0].toUpperCase();
+        if (!groupedMembers.containsKey(firstLetter)) {
+          groupedMembers[firstLetter] = <Member>[];
+        }
+        groupedMembers[firstLetter]!.add(member);
       }
-
-      groupedMembers[member.name[0].toUpperCase()]!.add(member);
-    }
+    });
   }
 
   @override
@@ -99,7 +111,6 @@ class _MembesrScreenState extends State<MembersScreen> {
           },
         );
 
-        filteredMembers = memberNotifier.members;
         return Scaffold(
           appBar: const PesseAppBar(
             title: 'Anggota',

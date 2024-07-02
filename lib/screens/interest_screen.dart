@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:form_validator/form_validator.dart';
 import 'package:pesse/providers/bottom_navigation_provider.dart';
 import 'package:pesse/providers/transaction_provider.dart';
 import 'package:pesse/themes/colors.dart';
@@ -21,6 +22,7 @@ class InterestScreen extends StatefulWidget {
 }
 
 class _InterestScreenState extends State<InterestScreen> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController interestController = TextEditingController();
 
   @override
@@ -28,13 +30,21 @@ class _InterestScreenState extends State<InterestScreen> {
     Provider.of<BottomNavigationNotifier>(context, listen: false)
         .setCurrentIndex(2);
 
-    Future.delayed(Duration.zero, () {
-      TransactionNotifier transactionNotifier =
-          Provider.of<TransactionNotifier>(context, listen: false);
-      transactionNotifier.getInterest();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initData();
     });
 
     super.initState();
+  }
+
+  Future<void> _initData() async {
+    final transactionNotifier =
+        Provider.of<TransactionNotifier>(context, listen: false);
+    try {
+      await transactionNotifier.getInterest();
+    } catch (e) {
+      print(e);
+    }
   }
 
   @override
@@ -104,6 +114,7 @@ class _InterestScreenState extends State<InterestScreen> {
 
   Widget _updateInterestForm() {
     return Form(
+      key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -115,15 +126,20 @@ class _InterestScreenState extends State<InterestScreen> {
           PesseTextField(
             controller: interestController,
             suffixIcon: const Icon(Icons.percent),
+            validator: ValidationBuilder(
+              requiredMessage: 'Persentase tidak boleh kosong',
+            ).build(),
             keyboardType: TextInputType.number,
           ),
           const SizedBox(height: 20),
           PesseTextButton(
             onPressed: () {
-              Provider.of<TransactionNotifier>(context, listen: false)
-                  .updateInterest(
-                newInterest: double.parse(interestController.text),
-              );
+              if (_formKey.currentState!.validate()) {
+                Provider.of<TransactionNotifier>(context, listen: false)
+                    .updateInterest(
+                  newInterest: double.parse(interestController.text),
+                );
+              }
             },
             label: 'Ubah',
           )

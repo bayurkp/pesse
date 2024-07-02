@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:form_validator/form_validator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pesse/providers/auth_provider.dart';
 import 'package:pesse/themes/text_theme.dart';
@@ -21,9 +22,9 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
 
   TextEditingController emailController =
-      TextEditingController(text: 'bayupratamaa1@gmail.com');
+      TextEditingController(text: 'bayskie123@gmail.com');
   TextEditingController passwordController =
-      TextEditingController(text: 'bayupratamaa1');
+      TextEditingController(text: '12345678');
 
   @override
   Widget build(BuildContext context) {
@@ -76,9 +77,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               style: PesseTextTheme.textTheme.bodyLarge,
                             ),
                             const SizedBox(height: 40.0),
-                            _loginForm(context),
+                            _loginForm(),
                             const SizedBox(height: 20.0),
-                            _registerLink(context),
+                            _registerLink(),
                           ],
                         ),
                       ),
@@ -90,7 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _loginForm(BuildContext context) {
+  Widget _loginForm() {
     return Form(
       key: _formKey,
       child: Column(
@@ -99,6 +100,9 @@ class _LoginScreenState extends State<LoginScreen> {
             controller: emailController,
             hintText: 'Alamat Surel',
             keyboardType: TextInputType.emailAddress,
+            validator: ValidationBuilder(
+              requiredMessage: 'Alamat surel tidak boleh kosong',
+            ).email('Alamat surel tidak valid').build(),
           ),
           const SizedBox(height: 20.0),
           PessePasswordField(
@@ -106,25 +110,27 @@ class _LoginScreenState extends State<LoginScreen> {
             hintText: 'Kata Sandi',
           ),
           const SizedBox(height: 20.0),
-          _loginButton(context),
+          _loginButton(),
         ],
       ),
     );
   }
 
-  Widget _loginButton(BuildContext context) {
+  Widget _loginButton() {
     return PesseTextButton(
       onPressed: () {
-        Provider.of<AuthNotifier>(context, listen: false).login(
-          email: emailController.text,
-          password: passwordController.text,
-        );
+        if (_formKey.currentState!.validate()) {
+          Provider.of<AuthNotifier>(context, listen: false).login(
+            email: emailController.text,
+            password: passwordController.text,
+          );
+        }
       },
       label: 'Masuk',
     );
   }
 
-  Widget _registerLink(BuildContext context) {
+  Widget _registerLink() {
     return Center(
       child: RichText(
         text: TextSpan(

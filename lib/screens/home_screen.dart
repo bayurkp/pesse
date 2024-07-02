@@ -2,7 +2,6 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pesse/models/member_model.dart';
 import 'package:pesse/providers/bottom_navigation_provider.dart';
 import 'package:pesse/providers/member_provider.dart';
 import 'package:pesse/providers/transaction_provider.dart';

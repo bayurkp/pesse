@@ -1,7 +1,7 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:form_validator/form_validator.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:pesse/models/member_model.dart';
 import 'package:pesse/providers/area_provider.dart';
 import 'package:pesse/providers/member_provider.dart';
@@ -31,6 +31,8 @@ class MemberForm extends StatefulWidget {
 }
 
 class _MemberFormState extends State<MemberForm> {
+  final _formKey = GlobalKey<FormState>();
+
   late final AreaNotifier _areaNotifier;
 
   final TextEditingController _nameController = TextEditingController();
@@ -42,6 +44,11 @@ class _MemberFormState extends State<MemberForm> {
   final TextEditingController _birthDateController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _imageUrlController = TextEditingController();
+
+  final _phoneInputFormatter = MaskTextInputFormatter(
+    mask: '+62 ####-####-######',
+    type: MaskAutoCompletionType.eager,
+  );
 
   int _isActive = 0;
   final ValueNotifier<String> _selectedProvinceCode = ValueNotifier<String>('');
@@ -121,6 +128,8 @@ class _MemberFormState extends State<MemberForm> {
   }
 
   void _updateUIWithAreaData() {
+    if (!mounted) return;
+
     _provinceController.text =
         _getNameForCode(_areaNotifier.provinces, _selectedProvinceCode.value);
     _regencyController.text =
@@ -193,7 +202,7 @@ class _MemberFormState extends State<MemberForm> {
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime(1900),
-      lastDate: DateTime(2100),
+      lastDate: DateTime.now(),
     );
 
     if (pickedDate != null) {
@@ -201,209 +210,179 @@ class _MemberFormState extends State<MemberForm> {
     }
   }
 
+  int _generateMemberNumber() {
+    int milliseconds = DateTime.now().millisecondsSinceEpoch;
+    int memberNumber = milliseconds % 10000;
+
+    return memberNumber;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<MemberNotifier>(
       builder: (context, memberNotifier, child) {
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            PesseTextField(
-              labelText: 'Nama',
-              controller: _nameController,
-            ),
-            const SizedBox(height: 20.0),
-            Consumer<AreaNotifier>(
-              builder: (context, areaNotifier, child) {
-                return Column(
-                  children: [
-                    _buildAreaDropdown(
-                      label: 'Provinsi',
-                      valueListenable: _selectedProvinceCode,
-                      controller: _provinceController,
-                      entries: areaNotifier.provinces
-                          .map((province) => DropdownMenuEntry<String>(
-                                value: province.code,
-                                label: province.name,
-                              ))
-                          .toList(),
-                    ),
-                    const SizedBox(height: 20.0),
-                    _buildAreaDropdown(
-                      label: 'Kabupaten/Kota',
-                      valueListenable: _selectedRegencyCode,
-                      controller: _regencyController,
-                      entries: areaNotifier.regencies
-                          .map((regency) => DropdownMenuEntry<String>(
-                                value: regency.code,
-                                label: regency.name,
-                              ))
-                          .toList(),
-                    ),
-                    const SizedBox(height: 20.0),
-                    _buildAreaDropdown(
-                      label: 'Kecamatan',
-                      valueListenable: _selectedDistrictCode,
-                      controller: _districtController,
-                      entries: areaNotifier.districts
-                          .map((district) => DropdownMenuEntry<String>(
-                                value: district.code,
-                                label: district.name,
-                              ))
-                          .toList(),
-                    ),
-                    const SizedBox(height: 20.0),
-                    _buildAreaDropdown(
-                      label: 'Desa/Kelurahan',
-                      valueListenable: _selectedVillageCode,
-                      controller: _villageController,
-                      entries: areaNotifier.villages
-                          .map((village) => DropdownMenuEntry<String>(
-                                value: village.code,
-                                label: village.name,
-                              ))
-                          .toList(),
-                    ),
-                  ],
-                );
-              },
-            ),
-            const SizedBox(height: 20.0),
-            PesseTextField(
-              labelText: 'Alamat',
-              controller: _addressController,
-            ),
-            const SizedBox(height: 20.0),
-            PesseTextField(
-              labelText: 'Tanggal Lahir',
-              controller: _birthDateController,
-              hintText: 'TTTT-BB-HH',
-              suffixIcon: const Icon(Icons.calendar_month),
-              readOnly: true,
-              onTap: () {
-                _selectDate();
-              },
-            ),
-            const SizedBox(height: 20.0),
-            PesseTextField(
-              labelText: 'Telepon',
-              controller: _phoneNumberController,
-            ),
-            const SizedBox(height: 20.0),
-            PesseTextField(
-              labelText: 'Gambar',
-              controller: _imageUrlController,
-            ),
-            const SizedBox(height: 20.0),
-            Container(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Status',
-                style: context.label,
+        return Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              PesseTextField(
+                labelText: 'Nama',
+                validator: ValidationBuilder(
+                  requiredMessage: 'Nama tidak boleh kosong',
+                ).build(),
+                controller: _nameController,
               ),
-            ),
-            const SizedBox(height: 8.0),
-            Row(
-              children: <Widget>[
-                Expanded(
-                  child: RadioListTile<int>(
-                    title: Text(
-                      'Aktif',
-                      style: context.label,
-                    ),
-                    tileColor: PesseColors.surface,
-                    contentPadding: const EdgeInsets.all(5.0),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(15.0),
+              const SizedBox(height: 20.0),
+              Consumer<AreaNotifier>(
+                builder: (context, areaNotifier, child) {
+                  return Column(
+                    children: [
+                      _buildAreaDropdown(
+                        label: 'Provinsi',
+                        valueListenable: _selectedProvinceCode,
+                        controller: _provinceController,
+                        entries: areaNotifier.provinces
+                            .map((province) => DropdownMenuEntry<String>(
+                                  value: province.code,
+                                  label: province.name,
+                                ))
+                            .toList(),
                       ),
-                    ),
-                    value: 1,
-                    groupValue: _isActive,
-                    onChanged: _onIsActiveChange,
-                  ),
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                Expanded(
-                  child: RadioListTile<int>(
-                    title: Text(
-                      'Tidak Aktif',
-                      style: context.label,
-                    ),
-                    tileColor: PesseColors.surface,
-                    contentPadding: const EdgeInsets.all(5.0),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(15.0),
+                      const SizedBox(height: 20.0),
+                      _buildAreaDropdown(
+                        label: 'Kabupaten/Kota',
+                        valueListenable: _selectedRegencyCode,
+                        controller: _regencyController,
+                        entries: areaNotifier.regencies
+                            .map((regency) => DropdownMenuEntry<String>(
+                                  value: regency.code,
+                                  label: regency.name,
+                                ))
+                            .toList(),
                       ),
-                    ),
-                    value: 0,
-                    groupValue: _isActive,
-                    onChanged: _onIsActiveChange,
-                  ),
+                      const SizedBox(height: 20.0),
+                      _buildAreaDropdown(
+                        label: 'Kecamatan',
+                        valueListenable: _selectedDistrictCode,
+                        controller: _districtController,
+                        entries: areaNotifier.districts
+                            .map((district) => DropdownMenuEntry<String>(
+                                  value: district.code,
+                                  label: district.name,
+                                ))
+                            .toList(),
+                      ),
+                      const SizedBox(height: 20.0),
+                      _buildAreaDropdown(
+                        label: 'Desa/Kelurahan',
+                        valueListenable: _selectedVillageCode,
+                        controller: _villageController,
+                        entries: areaNotifier.villages
+                            .map((village) => DropdownMenuEntry<String>(
+                                  value: village.code,
+                                  label: village.name,
+                                ))
+                            .toList(),
+                      ),
+                    ],
+                  );
+                },
+              ),
+              const SizedBox(height: 20.0),
+              PesseTextField(
+                labelText: 'Alamat',
+                controller: _addressController,
+                validator: ValidationBuilder(
+                  requiredMessage: 'Alamat tidak boleh kosong',
+                ).build(),
+              ),
+              const SizedBox(height: 20.0),
+              PesseTextField(
+                labelText: 'Tanggal Lahir',
+                controller: _birthDateController,
+                validator: ValidationBuilder(
+                  requiredMessage: 'Tanggal lahir tidak boleh kosong',
+                ).build(),
+                hintText: 'TTTT-BB-HH',
+                suffixIcon: const Icon(Icons.calendar_month),
+                readOnly: true,
+                onTap: () {
+                  _selectDate();
+                },
+              ),
+              const SizedBox(height: 20.0),
+              PesseTextField(
+                labelText: 'Telepon',
+                controller: _phoneNumberController,
+                keyboardType: TextInputType.phone,
+                inputFormatters: _phoneInputFormatter,
+                validator: ValidationBuilder(
+                  requiredMessage: 'Nomor telepon tidak boleh kosong',
+                ).build(),
+              ),
+              const SizedBox(height: 20.0),
+              PesseTextField(
+                labelText: 'Gambar',
+                controller: _imageUrlController,
+              ),
+              const SizedBox(height: 20.0),
+              Container(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Status',
+                  style: context.label,
                 ),
-              ],
-            ),
-            const SizedBox(height: 20.0),
-            PesseTextButton(
-              onPressed: () {
-                final Area area = Area(
-                  province: Province(
-                    code: _selectedProvinceCode.value,
-                    name: _provinceController.text,
+              ),
+              const SizedBox(height: 8.0),
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    child: RadioListTile<int>(
+                      title: Text(
+                        'Aktif',
+                        style: context.label,
+                      ),
+                      tileColor: PesseColors.surface,
+                      contentPadding: const EdgeInsets.all(5.0),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(15.0),
+                        ),
+                      ),
+                      value: 1,
+                      groupValue: _isActive,
+                      onChanged: _onIsActiveChange,
+                    ),
                   ),
-                  regency: Regency(
-                    code: _selectedRegencyCode.value,
-                    name: _regencyController.text,
+                  const SizedBox(
+                    width: 10,
                   ),
-                  district: District(
-                    code: _selectedDistrictCode.value,
-                    name: _districtController.text,
+                  Expanded(
+                    child: RadioListTile<int>(
+                      title: Text(
+                        'Tidak Aktif',
+                        style: context.label,
+                      ),
+                      tileColor: PesseColors.surface,
+                      contentPadding: const EdgeInsets.all(5.0),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(15.0),
+                        ),
+                      ),
+                      value: 0,
+                      groupValue: _isActive,
+                      onChanged: _onIsActiveChange,
+                    ),
                   ),
-                  village: Village(
-                    code: _selectedVillageCode.value,
-                    name: _villageController.text,
-                  ),
-                );
-
-                final newMember = Member(
-                  id: widget.formType == MemberFormType.edit
-                      ? widget.member!.id
-                      : 0,
-                  memberNumber: widget.formType == MemberFormType.edit
-                      ? widget.member!.memberNumber
-                      : Random().nextInt(1000),
-                  name: _nameController.text,
-                  address:
-                      '${_addressController.text.trim()}, ${area.toString()}',
-                  birthDate: _birthDateController.text,
-                  phoneNumber: _phoneNumberController.text,
-                  imageUrl: _imageUrlController.text,
-                  isActive: _isActive,
-                );
-
-                if (widget.formType == MemberFormType.edit) {
-                  memberNotifier.updateMember(
-                    member: newMember,
-                  );
-                } else {
-                  memberNotifier.addMember(
-                    member: newMember,
-                  );
-                }
-
-                if (memberNotifier.isSuccess == true) {
-                  context.goNamed('members.index');
-                }
-              },
-              label: widget.formType == MemberFormType.add
-                  ? 'Tambah Anggota'
-                  : 'Edit Anggota',
-            ),
-          ],
+                ],
+              ),
+              const SizedBox(height: 20.0),
+              _submitButton(),
+            ],
+          ),
         );
       },
     );
@@ -436,6 +415,74 @@ class _MemberFormState extends State<MemberForm> {
               dropdownController: controller,
             ),
           ],
+        );
+      },
+    );
+  }
+
+  Widget _submitButton() {
+    return Consumer<MemberNotifier>(
+      builder: (context, memberNotifier, child) {
+        return PesseTextButton(
+          onPressed: () {
+            late final Area area;
+
+            if (_formKey.currentState!.validate()) {
+              area = Area(
+                province: Province(
+                  code: _selectedProvinceCode.value,
+                  name: _provinceController.text,
+                ),
+                regency: Regency(
+                  code: _selectedRegencyCode.value,
+                  name: _regencyController.text,
+                ),
+                district: District(
+                  code: _selectedDistrictCode.value,
+                  name: _districtController.text,
+                ),
+                village: Village(
+                  code: _selectedVillageCode.value,
+                  name: _villageController.text,
+                ),
+              );
+
+              String address = _addressController.text.trim() +
+                  (area.toString().isEmpty ? '' : ', ${area.toString()}');
+
+              final newMember = Member(
+                id: widget.formType == MemberFormType.edit
+                    ? widget.member!.id
+                    : 0,
+                memberNumber: widget.formType == MemberFormType.edit
+                    ? widget.member!.memberNumber
+                    : _generateMemberNumber(),
+                name: _nameController.text,
+                address: address,
+                birthDate: _birthDateController.text,
+                phoneNumber: _phoneNumberController.text,
+                imageUrl: _imageUrlController.text,
+                isActive: _isActive,
+              );
+
+              if (widget.formType == MemberFormType.edit) {
+                memberNotifier.updateMember(
+                  member: newMember,
+                );
+              } else {
+                memberNotifier.addMember(
+                  member: newMember,
+                );
+              }
+
+              if (memberNotifier.isSuccess == true) {
+                context.replaceNamed('members.index');
+              }
+            }
+          },
+          label: widget.formType == MemberFormType.add
+              ? 'Tambah Anggota'
+              : 'Edit Anggota',
         );
       },
     );

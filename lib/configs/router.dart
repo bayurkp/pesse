@@ -77,7 +77,7 @@ class PesseRouter {
           path: '/members',
           pageBuilder: (context, state) => NoTransitionPage<void>(
             key: state.pageKey,
-            child: const MembersScreen(),
+            child: const MemberScreen(),
           ),
         ),
         GoRoute(

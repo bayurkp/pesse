@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:form_validator/form_validator.dart';
 
 class PessePasswordField extends StatefulWidget {
   final TextEditingController controller;
@@ -16,14 +17,18 @@ class PessePasswordField extends StatefulWidget {
 
 class _PessePasswordFieldState extends State<PessePasswordField> {
   bool _isHidden = true;
+  final _passwordValidator = ValidationBuilder(
+    requiredMessage: 'Kata sandi tidak boleh kosong',
+  ).minLength(8, 'Kata sandi minimal 8 karakter').build();
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
       controller: widget.controller,
       obscureText: _isHidden,
       obscuringCharacter: '•',
       textAlign: TextAlign.left,
+      validator: _passwordValidator,
       decoration: InputDecoration(
         hintText: widget.hintText,
         suffixIcon: Transform.translate(

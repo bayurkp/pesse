@@ -58,6 +58,8 @@ class TransactionNotifier extends ChangeNotifier {
             ),
           )
           .toList();
+
+      _transactions.sort((a, b) => b.date.compareTo(a.date));
       _isPending = false;
       _isSuccess = true;
       _message = response.data['message'];
@@ -139,7 +141,7 @@ class TransactionNotifier extends ChangeNotifier {
         amount: double.parse(
             response.data['data']['tabungan']['trx_nominal'].toString()),
       );
-      _transactions.add(newTransaction);
+      _transactions = [newTransaction, ..._transactions];
 
       final multiplier = transactionTypes
           .firstWhere(
@@ -204,14 +206,17 @@ class TransactionNotifier extends ChangeNotifier {
           headers: {'Authorization': 'Bearer ${GetStorage().read('token')}'},
         ),
       );
-      _interest = response.data['data']['activebunga']['persen'];
 
-      var interestHistory = List<Map<String, dynamic>>.from(
-          response.data['data']['settingbungas']);
-      interestHistory.sort((a, b) => b['id'].compareTo(a['id']));
+      if (response.data['data']['activebunga'] != null) {
+        _interest = response.data['data']['activebunga']['persen'];
 
-      _interestHistory =
-          interestHistory.map<double>((e) => e['persen'].toDouble()).toList();
+        var interestHistory = List<Map<String, dynamic>>.from(
+            response.data['data']['settingbungas']);
+        interestHistory.sort((a, b) => b['id'].compareTo(a['id']));
+
+        _interestHistory =
+            interestHistory.map<double>((e) => e['persen'].toDouble()).toList();
+      }
 
       _isPending = false;
       _isSuccess = true;
@@ -243,6 +248,7 @@ class TransactionNotifier extends ChangeNotifier {
       );
 
       _interest = response.data['data']['settingbungas']['persen'];
+      _interestHistory = [_interest, ..._interestHistory];
       _isPending = false;
       _isSuccess = true;
       _message = response.data['message'];

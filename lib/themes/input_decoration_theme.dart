@@ -28,5 +28,25 @@ class PesseInputDecorationTheme {
         Radius.circular(15.0),
       ),
     ),
+    errorBorder: const OutlineInputBorder(
+      borderSide: BorderSide(
+        color: PesseColors.error,
+      ),
+      borderRadius: BorderRadius.all(
+        Radius.circular(15.0),
+      ),
+    ),
+    focusedErrorBorder: const OutlineInputBorder(
+      borderSide: BorderSide(
+        color: PesseColors.error,
+      ),
+      borderRadius: BorderRadius.all(
+        Radius.circular(15.0),
+      ),
+    ),
+    errorMaxLines: 3,
+    errorStyle: PesseTextTheme.textTheme.bodySmall!.copyWith(
+      color: PesseColors.error,
+    ),
   );
 }

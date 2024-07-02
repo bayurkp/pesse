@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pesse/providers/member_provider.dart';
 import 'package:pesse/themes/colors.dart';
-import 'package:provider/provider.dart';
 
 class PesseDropdownMenu extends StatefulWidget {
   final List<DropdownMenuEntry<String>> dropdownMenuEntries;

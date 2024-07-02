@@ -40,7 +40,7 @@ class _PesseTextButtonState extends State<PesseTextButton> {
         ),
         onPressed: widget.onPressed,
         child: Padding(
-          padding: const EdgeInsets.all(5.0),
+          padding: const EdgeInsets.all(10.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -63,7 +63,7 @@ class _PesseTextButtonState extends State<PesseTextButton> {
                 widget.label,
                 style: context.body.copyWith(
                   color: widget.foregroundColor ?? PesseColors.onPrimary,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],

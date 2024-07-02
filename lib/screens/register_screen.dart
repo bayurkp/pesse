@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pesse/providers/auth_provider.dart';
-import 'package:pesse/themes/colors.dart';
+import 'package:form_validator/form_validator.dart';
 import 'package:pesse/themes/text_theme.dart';
 import 'package:pesse/themes/theme_extension.dart';
 import 'package:pesse/utils/show_alert_dialog.dart';
 import 'package:pesse/widgets/password_field.dart';
+import 'package:pesse/widgets/text_button.dart';
 import 'package:pesse/widgets/text_field.dart';
 import 'package:provider/provider.dart';
 
@@ -93,12 +94,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
             controller: emailController,
             hintText: 'Alamat Surel',
             keyboardType: TextInputType.emailAddress,
+            validator: ValidationBuilder(
+              requiredMessage: 'Alamat surel tidak boleh kosong',
+            ).email('Format alamat surel tidak valid').build(),
           ),
           const SizedBox(height: 20.0),
           PesseTextField(
             controller: nameController,
             hintText: 'Nama Lengkap',
             keyboardType: TextInputType.name,
+            validator: ValidationBuilder(
+              requiredMessage: 'Nama lengkap tidak boleh kosong',
+            ).build(),
           ),
           const SizedBox(height: 20.0),
           PessePasswordField(
@@ -113,27 +120,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Widget _registerButton() {
-    return SizedBox(
-      width: double.infinity,
-      child: TextButton(
-        onPressed: () {
+    return PesseTextButton(
+      onPressed: () {
+        if (_formKey.currentState!.validate()) {
           Provider.of<AuthNotifier>(context, listen: false).register(
             email: emailController.text,
             name: nameController.text,
             password: passwordController.text,
           );
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: Text(
-            'Daftar',
-            style: PesseTextTheme.textTheme.bodyLarge!.copyWith(
-              color: PesseColors.onPrimary,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      ),
+        }
+      },
+      label: 'Daftar',
     );
   }
 
